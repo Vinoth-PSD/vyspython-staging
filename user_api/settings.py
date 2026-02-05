@@ -173,13 +173,29 @@ WSGI_APPLICATION = 'user_api.wsgi.application'
 # }
 
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'vysamala_livedata',
+#         'USER': 'vysyamala_new25',
+#         'PASSWORD': 'DevVy@2025',
+#         'HOST': 'vysyamat.mysql.database.azure.com',  # e.g., 'localhost' or an IP address
+#         'PORT': '3306',  # default MySQL port
+#         'CONN_MAX_AGE': 60, 
+#         # 'OPTIONS': {
+#         #     'init_command': 'SET SESSION wait_timeout=28800',
+#         #     'connect_timeout': 10
+#         # }
+#     }
+# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'vysamala_livedata',
-        'USER': 'vysyamala_new25',
-        'PASSWORD': 'DevVy@2025',
-        'HOST': 'vysyamat.mysql.database.azure.com',  # e.g., 'localhost' or an IP address
+        'NAME': 'project1_livedata',
+        'USER': 'project1_livedata',
+        'PASSWORD': 'DEv@2025to2026',
+        'HOST': '20.84.40.134',  # e.g., 'localhost' or an IP address
         'PORT': '3306',  # default MySQL port
         'CONN_MAX_AGE': 60, 
         # 'OPTIONS': {
