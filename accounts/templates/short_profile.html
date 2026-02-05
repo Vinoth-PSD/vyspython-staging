@@ -1,0 +1,95 @@
+{% include 'pdf_templates/header.html' %}
+    {% load custom_filters %}
+
+
+     <table class="table-div">
+                            <tr>
+                                <td class="border-right">
+                                <table class="inner-table">
+                                    <tr>
+                                    <td>
+                                    <p><strong>Profile ID:</strong></p>
+                                    <p>Name: </p>
+                                    <p>DOB:</p>
+                                    
+                                   
+                                    </td>
+                                    <td>
+                                    <p><strong>{{profile_id}}</strong></p>
+                                    <p> {{name}}</p>
+                                    <p>{{dob}}</p>
+
+                                    
+                                    </td>
+                                    </tr>
+                                    </table>
+                                    
+                                </td>
+                                
+                                <td>
+                                <table class="inner-table">
+                                    <tr>
+                                        <td>
+                                            <p><strong>Father's Name:</strong></p>
+                                            <p>Complexion: </p>
+                                            <p>Birth Star:</p>
+                                            
+                                        </td> 
+                                        <td>
+                                            <p><strong>{{father_name}}</strong></p>
+                                            <p>{{complexion}}</p>
+                                            <p>{{ birth_star }}</p>
+                                            
+                                        </td> 
+                                    </tr>
+                                </table>
+                                </td>
+                            </tr>
+                        </table>
+    <br>
+                        
+<div style="display: flex; justify-content: center; margin: 20px 0;">
+    <table class="outer">
+        <tr>
+            <td style="width: 25%;margin: 0 auto;text-align: center;"></td>
+
+            <td style="width: 50%;margin: 0 auto;text-align: center;">
+                <table class="inner">
+                    <tr>
+                        <td class="inner-tabledata text-wrap">{{rasi_kattam_data.0|replace_br|safe}}</td>
+                        <td class="inner-tabledata text-wrap">{{rasi_kattam_data.1|replace_br|safe}}</td>
+                        <td class="inner-tabledata text-wrap">{{rasi_kattam_data.2|replace_br|safe}}</td>
+                        <td class="inner-tabledata text-wrap">{{rasi_kattam_data.3|replace_br|safe}}</td>
+                    </tr>
+                    <tr>
+                        <td class="inner-tabledata text-wrap">{{rasi_kattam_data.11|replace_br|safe}}</td>
+                        <td colspan="2" rowspan="2" class="highlight">
+                            Rasi
+                            <p>vysyamala.com</p>
+                        </td>
+                        <td class="inner-tabledata text-wrap">{{rasi_kattam_data.4|replace_br|safe}}</td>
+                    </tr>
+                    <tr>
+                        <td class="inner-tabledata text-wrap">{{rasi_kattam_data.10|replace_br|safe}}</td> <!-- FIXED -->
+                        <td class="inner-tabledata text-wrap">{{rasi_kattam_data.5|replace_br|safe}}</td>
+                    </tr>
+                    <tr>
+                        <td class="inner-tabledata text-wrap">{{rasi_kattam_data.9|replace_br|safe}}</td>
+                        <td class="inner-tabledata text-wrap">{{rasi_kattam_data.8|replace_br|safe}}</td>
+                        <td class="inner-tabledata text-wrap">{{rasi_kattam_data.7|replace_br|safe}}</td>
+                        <td class="inner-tabledata text-wrap">{{rasi_kattam_data.6|replace_br|safe}}</td>
+                    </tr>
+                </table>
+            </td>
+            <td style="width: 25%;margin: 0 auto;text-align: center;"></td>
+
+        </tr>
+    </table>
+</div>
+
+    <br>
+    <div class="upload-horo-bg">
+        <img src="https://vysyamat.blob.core.windows.net/vysyamala/pdfimages/uploadHoroFooter.png">
+  </div>
+</body>
+</html>

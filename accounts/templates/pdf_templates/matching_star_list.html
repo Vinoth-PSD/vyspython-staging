@@ -1,0 +1,67 @@
+<div class="porutham-match">
+  <!-- <h2>Matching Stars</h2> -->
+
+  <table class="porutham-page">
+    <tr>
+      <td>
+        <br />
+        <table class="porutham-header">
+          <tr>
+            <td>
+              <img
+                src="https://vysyamat.blob.core.windows.net/vysyamala/newvysyamalalogo2.png"
+              />
+            </td>
+            <td>
+              <p>www.vysyamala.com</p>
+            </td>
+          </tr>
+        </table>
+        <h2 class="porutham-table-title">Matching Stars Report</h2>
+        <table class="porutham-table">
+          <tr>
+            <td><p>Name</p></td>
+            <td><p>{{name}}</p></td>
+            <td><p>Vysyamala ID</p></td>
+            <td><p>{{profile_id}}</p></td>
+          </tr>
+          <tr>
+            <td><p>Birth Star</p></td>
+            <td><p>{{birth_star}}{% if padham %} - {{ padham }} {% endif %}</p></td>
+            <td><p>Age</p></td>
+            <td><p>{{age}}</p></td>
+          </tr>
+        </table>
+        {% for porutham_count, stars in porutham_stars.items %}
+          {% if stars and stars != "N/A" %}
+          <h2 class="porutham-table-title">
+            Matching Stars ({{ porutham_count }} Poruthams)
+          </h2>
+          <table class="porutham-table porutham-star">
+            <tr>
+              <td><p>{{ stars }}</p></td>
+            </tr>
+          </table>
+          {% endif %}
+        {% endfor %}
+      </td>
+    </tr>
+  </table>
+  <div class="inner-tabledata mt">
+   <table class="outer2"> 
+    <tr>
+    <td>
+   <table class="add-info2"> 
+    <tr>
+    <td>
+  <div style="font-size:16px;">
+     Note: This is system generated report, please confirm the same with your astrologer
+  </div>
+   </td>
+      </tr>
+  </table>
+  </td>
+      </tr>
+  </table>
+</div>
+</div>

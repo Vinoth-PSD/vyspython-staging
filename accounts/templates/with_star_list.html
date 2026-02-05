@@ -1,0 +1,101 @@
+{% comment %}        
+<style>
+   .porutham-page{
+                                padding: 0px 20px;
+                            }
+                            .porutham-header {
+                                margin: 20px 0px;
+                            }
+
+                            .porutham-header img{
+                                width: 130px;
+                                height: auto;
+                            }
+                            .porutham-header p {
+                                font-size:22px;
+                                font-weight: 700;
+                                color:#000000;
+                            }
+                            h2.porutham-table-title{
+                                font-size: 24px;
+                                font-weight: 700;
+                                margin-bottom: 20px;
+                                padding:0px 0px;
+                            }
+                            .porutham-table{
+                                border:1px solid #bcbcbc;
+                                border-collapse: collapse;
+                                margin-bottom: 24px;
+                            }
+                            .porutham-table td {
+                                border:1px solid #bcbcbc;
+                            }
+                            .porutham-table td p{
+                                color: #000;
+                                font-size:16px;
+                                font-weight:700;
+                                text-align:center;
+                                padding: 10px 0;
+                            }
+                            .porutham-stars tr td p{
+                                text-align:left;
+                                padding: 20px 20px;
+                            }
+                            .porutham-note{
+                                font-size: 17px;
+                                font-weight:400;
+                                color: #000000;
+                                padding:20px 0px;
+                            }
+
+</style>
+<table class="header">
+        <tr>
+            <td class="header-left">
+                <div class="header-logo">
+                    <img src="https://vysyamat.blob.core.windows.net/vysyamala/pdfimages/horoHeader.png"
+                        alt="Vysyamala Logo">
+                </div>
+            </td>
+        </tr>
+    </table>
+
+<div class=" porutham-match">
+    <table class="porutham-page">
+                <h2 class="porutham-table-title">Matching Stars Report</h2>
+                <table class="porutham-table">
+                     <tr>
+                        <td><p >Name</p></td>
+                        <td><p >{{name}}</p></td>
+                        <td><p >Vysyamala ID</p></td>
+                        <td><p >{{profile_id}}</p></td>
+                    </tr>
+                    <tr>
+                        <td><p >Birth Star</p></td>
+                        <td><p >{{birth_star}}</p></td>
+                        <td><p >Age</p></td>
+                        <td><p >{{age}}</p></td>
+                    </tr>
+                </table>
+            {% for porutham_count, stars in porutham_stars.items %}
+              <h2 class="porutham-table-title" >Matching Stars ({{ porutham_count }} Poruthams)</h2>
+              <table class="porutham-table porutham-star">
+                <tr>
+                  <td><p >{{ stars|default:"N/A" }}</p></td>
+                </tr>
+              </table>
+            {% endfor %}
+      </table>
+</div>
+    <div class="upload-horo-bg mt-5">
+    <img src="https://vysyamat.blob.core.windows.net/vysyamala/pdfimages/uploadHoroFooter.png">
+  </div>
+</body>
+</html> {% endcomment %}
+{% include 'pdf_templates/header.html' %}
+{% include 'pdf_templates/matching_star_list.html' %}
+    {% comment %} <div class="upload-horo-bg">
+    <img src="https://vysyamat.blob.core.windows.net/vysyamala/pdfimages/uploadHoroFooter.png">
+  </div> {% endcomment %}
+</body>
+</html> 

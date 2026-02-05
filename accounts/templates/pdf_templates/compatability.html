@@ -1,0 +1,171 @@
+<style>
+  .compatibility-page-wrapper {
+    margin: 0px auto;
+    text-align: center;
+    width: 100%;
+  }
+  .compatibility-page-wrapper tr {
+    margin: auto;
+    text-align: center;
+    width: 100%;
+  }
+
+  .compatibility-page-wrapper tr td {
+    background-color: #ffd966;
+    width: 100%;
+    text-align: center;
+    margin: auto;
+  }
+  .compatability-table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 24px;
+    background-color: #fff9c7;
+    font-size: 14px;
+  }
+
+  .compatability-table th {
+    background-color: #008000;
+    color: #ffd966;
+    font-size: 16px;
+    padding: 10px 10px;
+    text-align: center;
+    border: 1px solid #008000;
+  }
+
+  .compatability-table td {
+    padding: 10px;
+    text-align: center;
+    font-weight: 500;
+    border: 1px solid #008000;
+    color: #008000;
+    padding: 5px 10px;
+  }
+
+  .compatability-table tr:nth-child(even) {
+    background-color: #fef5b3;
+  }
+
+  .matching-score {
+    font-size: 36px;
+    font-weight: bold;
+    color: #008000;
+    margin-bottom: 10px;
+  }
+
+  .compatability-table td span {
+    font-size: 14px;
+    font-weight: 600;
+  }
+</style>
+
+<table class="compatibility-page-wrapper">
+  <tr>
+    <td style="text-align: center; margin: 0 auto; padding: 0px 100px">
+      <br />
+      <h2 style="text-align: center; color: #008000; font-size: 20px">
+        Marriage Compatibility Report
+      </h2>
+
+      <table class="table-div">
+        <tr>
+          <td>
+            <p style="text-align: center;">{{my_name}} - {{my_profile_id}}</p>
+          </td>
+          <td>
+            <p style="text-align: center">{{name}} - {{profile_id}}</p>
+          </td>
+        </tr>
+        <tr>
+          <td class="sub-header">
+            <p style="text-align: center">
+              {{birth_rasi_my}} - {{birth_star_my}}
+            </p>
+          </td>
+          <td class="sub-header">
+            <p style="text-align: center">{{birth_rasi}} - {{birth_star}}</p>
+          </td>
+        </tr>
+      </table>
+      <br />
+
+      <table class="table-div">
+        <tr>
+          <td class="data-row">
+            <p style="text-align: center">
+              Place of Birth : {{my_birth_place}}
+            </p>
+            <p style="text-align: center">
+              Time of Birth : {{my_time_of_birth}}
+            </p>
+            <p style="text-align: center">Date Of Birth : {{my_dob}}</p>
+          </td>
+          <td class="data-row">
+            <p style="text-align: center">Place of Birth : {{birth_place}}</p>
+            <p style="text-align: center">Time of Birth : {{birth_start}}</p>
+            <p style="text-align: center">Date Of Birth : {{dob}}</p>
+          </td>
+        </tr>
+      </table>
+      <br />
+
+      <table class="table-div">
+        <tr>
+          <td class="data-row">
+            <p style="text-align: center">Height : {{my_height}}</p>
+            <p style="text-align: center">{{highest_education_my}}</p>
+          </td>
+          <td class="data-row">
+            <p style="text-align: center">Height : {{height}}</p>
+             <p style="text-align: center">{{highest_education}}</p>
+          </td>
+        </tr>
+      </table>
+
+      <table class="porutham-page">
+        <tr>
+          <td>
+            <br />
+            <div class="compatability-page">
+              <h2
+                class="compatability-table-title"
+                style="text-align: center; color: #008000; font-size: 20px"
+              >
+                Nakshatra Porutham & Rasi Porutham
+              </h2>
+              <table class="compatability-table">
+                <tr>
+                  <th>Porutham Name</th>
+                  <th>Status</th>
+                  <th>Matching Score</th>
+                </tr>
+                {{porutham_rows | safe}}
+              </table>
+            </div>
+          </td>
+        </tr>
+      </table>
+      <table class="porutham-page" style="margin-top: 10px">
+        <tr>
+          <td>
+            <table class="compatability-table">
+              <tr>
+                <td>
+                  Our best wishes for finding your soulmate in Vysamala soon.
+                  Please inform Vysamala if your marriage is fixed. Share your
+                  engagement photo and receive a surprise gift. No commissions /
+                  hidden charges. Jai Vasavi!
+                 
+                </td>
+              </tr>
+            </table>
+             <br/>
+                  <br/>
+                  <br/>
+                  <br/>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>

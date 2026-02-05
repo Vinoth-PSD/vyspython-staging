@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 0px;
+        font-size: 13px;
+      }
+      .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin:0px;
+        margin-top: 10px;
+        
+      }
+      .table th,
+      .table td {
+        border: 1px solid #000;
+        padding: 10px;
+        text-align: left;
+      }
+      .table th {
+        background-color: #ffffff;
+        padding-bottom:0px !important;
+
+      }
+      .table td {
+        padding-bottom:0px !important;
+      }
+      .note {
+        margin-top: 30px;
+        font-style: italic;
+        font-weight: bold;
+        text-align: center;
+      }
+      .bottom-contact {
+        margin-top: 10px;
+        font-size: 11px;
+        border-top: 1px solid #000;
+        padding-top: 5px;
+      }
+      .text-green {
+        color: rgb(31, 90, 41) !important;
+      }
+    </style>
+  </head>
+  <body>
+    <table style="border:2px solid #f0ed46; padding:5px;padding-left:20px;width: 100%; box-sizing: border-box;">
+        <tr>
+        <td>
+    <table style="margin-bottom: 30px; width: 100%">
+      <tr>
+        <td
+          style="vertical-align: top; font-size: 13px; text-align: left"
+          class="text-green"
+        >
+          {% if encoded_logo %}
+          <img
+            src="data:image/png;base64,{{ encoded_logo }}"
+            style="height: 30px; width: 150px; object-fit: contain;"
+          />
+          <br />
+          Online Arya vysya Matrimonial since 2008
+          <br />
+          <br/>
+          {% endif %}
+          <strong>To</strong><br />
+          <b>{{ customer_name }}<br />
+          {{ address|safe}}</b>
+        </td>
+        <td style="vertical-align: top; text-align: right" class="text-green">
+          <h2 style="font-size:2rem;margin: 0; color: #9c9c9c"><b>Invoice</b></h2>
+          <b>Date:</b>{{ date }}<br />
+          <b>Invoice #:</b> V{{ invoice_number }}<br />
+          <b>Vysyamala ID:</b> {{ vysyamala_id }}<br />
+        </td>
+      </tr>
+    </table>
+
+    <table class="table">
+      <tr>
+        <th colspan="3">Service Description</th>
+        {% comment %} <th>Price</th> {% endcomment %}
+        <th>Price</th>
+        <th>Net Total</th>
+      </tr>
+      <tr>
+        <td colspan="3">
+          {% if service_description %} 
+          Vysyamala {{ service_description }} Membership<br />
+          {% endif %}
+         
+          <b
+            >Valid till: {{ valid_till }} or engagement date whichever is
+            earlier</b
+          ><br/>
+           <b>{{offer}}</b>
+        {% comment %} {% if addon_items %}
+            <p>Add-on Services</p>
+        {% endif %} {% endcomment %}
+   {% for addon in addon_items %}
+    
+        <p>{{ addon.name }} - {{ addon.description }}</p>
+      
+      {% endfor %}
+        </td>
+        {% comment %} <td>{{ price }}
+            {% for addon in addon_items %}
+            <p>{{ addon.amount }}</p>
+            {%endfor%}
+        </td>    {% endcomment %}
+        <td>{{ price }}
+            <p></p>
+            {% for addon in addon_items %}
+            <p>{{ addon.amount }}</p>
+            {%endfor%}
+        </td>
+        <td>{{ price }}
+            <p></p>
+            {% for addon in addon_items %}
+            <p>{{ addon.amount }}</p>
+            {%endfor%}
+        </td>
+        {% comment %} {% if addon_items %}
+     
+      </tr>
+   
+      <tr>
+        <td colspan="3"><strong>Add-on Total</strong></td>
+        <td><strong>{{ addon_total }}</strong></td>
+      </tr>
+      {% endif %} {% endcomment %}
+      
+      <!-- <tr>
+        <td colspan="3">Net Total</td>
+        <td><strong>{{ net_price }}</strong></td>
+      </tr> -->
+      {% if discount and not discount == '0' %}
+      <tr>
+        <td colspan="4">Discount</td>
+        <td><strong>{{ discount }}</strong></td>
+      </tr>
+      {% endif %}
+      <tr>
+        <td colspan="4"><strong>Grand Total</strong></td>
+        <td><strong>{{ total_price }}</strong></td>
+      </tr>
+    </table>
+
+    <p><strong>In words:</strong> {{num_to_words}}.</p>
+
+    <table class="table" style="width: 50%; margin-top: 20px">
+      <tr>
+        <th colspan="4" >Payment Mode</th>
+        <td>{{ payment_mode }}</td>
+      </tr>
+    </table>
+
+    <p class="note">Thank you for your opportunity to serve you!</p>
+
+    <div class="bottom-contact">
+      <table style="width: 100%">
+        <tr>
+          <td class="text-green" style="vertical-align: top; width: 50%">
+            <b>Vysyamala</b><br />
+            C/o. YK Lavanya<br />
+            <b>No.2, Krishnaswamy Street (Lane)<br />
+            A6-2nd Floor, Sri Vinayaga Flats<br />
+            Ganapathipuram, Chrompet<br />
+            Chennai – 600 044</b>
+          </td>
+
+          <td style="vertical-align: top; text-align: right; font-size: 11px">
+            <p class="text-green" style="font-weight: 700">
+              Web: <a href="http://www.vysyamala.com">www.vysyamala.com</a>
+            </p>
+            <p class="text-green" style="font-weight: 700">
+              Email: <a>vysyamala@gmail.com</a>
+            </p>
+            <p class="text-green" style="font-weight: 700">
+              Facebook: <a>www.fb.com/vysyamala</a>
+            </p>
+            <p class="text-green" style="font-weight: 700">
+              <b>Whatsapp: 9043085524</b>
+            </p>
+            <p class="text-green" style="font-weight: 700">
+              <b>Customer Support: 9944851550 (10 a.m. to 6 p.m.)</b>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td
+            colspan="2"
+            style="
+              text-align: center;
+              font-style: italic;
+              font-size: 12px;
+              padding-top: 10px;
+            "
+          >
+            May Goddess Sri Vasavi Kanyaka Parameswari bless you and your family
+            with peace & prosperity!
+          </td>
+        </tr>
+      </table>
+    </div>
+</td>
+</tr>
+</table>
+  </body>
+</html>
