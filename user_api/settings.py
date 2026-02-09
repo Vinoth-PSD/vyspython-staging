@@ -195,7 +195,7 @@ DATABASES = {
         'NAME': 'project1_livedata',
         'USER': 'project1_livedata',
         'PASSWORD': 'DEv@2025to2026',
-        'HOST': '20.84.40.134',  # e.g., 'localhost' or an IP address
+        'HOST': '20.246.74.138',  # e.g., 'localhost' or an IP address
         'PORT': '3306',  # default MySQL port
         'CONN_MAX_AGE': 60, 
         # 'OPTIONS': {
