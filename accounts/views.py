@@ -8964,7 +8964,7 @@ class GenerateInvoicePDF(APIView):
             return Response({"error": "Subscription not found"}, status=status.HTTP_404_NOT_FOUND)
 
         try:
-            profile = Registration1.objects.get(ProfileId=subscription.profile_id)
+            profile = LoginDetails.objects.get(ProfileId=subscription.profile_id)
             state = get_state_name(profile.Profile_state)
         except Exception:
             profile = None
@@ -9034,13 +9034,13 @@ class GenerateInvoicePDF(APIView):
             'encoded_logo': encoded_logo,
             'customer_name': customer_name if customer_name else "Valued Customer",
             'address': address,
-            'date': subscription.payment_date.strftime("%d/%m/%Y") if subscription.payment_date else "",
+            'date': profile.membership_startdate.strftime("%d-%m-%Y") if profile and profile.membership_startdate else "",
             'invoice_number': subscription.id,
             'vysyamala_id': subscription.profile_id or "",
             'service_description':plan_name or "" ,
             'offer': subscription.offer or "",
             'price': f"{base_price:.0f}",
-            'valid_till': subscription.validity_enddate.strftime("%d-%m-%Y") if subscription.validity_enddate else "",
+            'valid_till': profile.membership_enddate.strftime("%d-%m-%Y") if profile and profile.membership_enddate else "",
             'payment_mode': payment_mode or "N/A",
             'addon_items': addon_items,
             'addon_total': f"{addon_total:.0f}",
