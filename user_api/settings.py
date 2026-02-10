@@ -250,14 +250,14 @@ DATABASES = {
 
 
 
-# RAZORPAY_KEY_ID = "rzp_test_bR07kHwjYrmOHm"
-# RAZORPAY_KEY_SECRET = "19D1bDjsZFN9Wh8xHHAqy5f0"
+RAZORPAY_KEY_ID = "rzp_test_bR07kHwjYrmOHm"
+RAZORPAY_KEY_SECRET = "19D1bDjsZFN9Wh8xHHAqy5f0"
 
 # RAZORPAY_KEY_ID = "rzp_live_uQLFO2SH0yNGCh"
 # RAZORPAY_KEY_SECRET = "Nefg8B37WaHfPyjwMYt8xz90K"
 
-RAZORPAY_KEY_ID = "rzp_live_HYCeDsho3jhHRt"
-RAZORPAY_KEY_SECRET = "115FgMLvHHVQHlnjtT38zhzk"
+# RAZORPAY_KEY_ID = "rzp_live_HYCeDsho3jhHRt"
+# RAZORPAY_KEY_SECRET = "115FgMLvHHVQHlnjtT38zhzk"
  
 
 # Password validation
@@ -509,15 +509,27 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # DEFAULT_FROM_EMAIL = 'vinoth@psdigitise.com'
 
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
-EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_USE_SSL = False
+
+# EMAIL_HOST_USER = 'Info@vysyamala.com'
+# EMAIL_HOST_PASSWORD = 'aussiopmcajislbs'
+
+# DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'bv-b29.yuvanetworks.in'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_USE_SSL = False
 
-EMAIL_HOST_USER = 'Info@vysyamala.com'
-EMAIL_HOST_PASSWORD = 'aussiopmcajislbs'
+EMAIL_HOST_USER = 'santhaashwin@psdigitise.com'
+EMAIL_HOST_PASSWORD = 'BpnlCfUg4T'
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 

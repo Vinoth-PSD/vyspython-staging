@@ -53,12 +53,12 @@ def send_email_notification(from_profile_id,from_profile_name,to_name,to_email, 
         # send_mail(subject,settings.DEFAULT_FROM_EMAIL,recipient_list,fail_silently=False,html_message=html_content)
         from_email = settings.DEFAULT_FROM_EMAIL
 
-        send_mail(
-                subject,
-                '',  # No plain text version
-                from_email,
-                recipient_list,  # Recipient list should be a list
-                fail_silently=False,
-                html_message=html_content
-            )
+        # send_mail(
+        #         subject,
+        #         '',  # No plain text version
+        #         from_email,
+        #         recipient_list,  # Recipient list should be a list
+        #         fail_silently=False,
+        #         html_message=html_content
+        #     )
         print('Email send sucessfully')
