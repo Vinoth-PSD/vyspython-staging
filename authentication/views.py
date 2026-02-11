@@ -2438,9 +2438,9 @@ class Get_profile_intrests_list(APIView):
                     photo_viewing=get_permission_limits(profile_id,'photo_viewing')
                
                     if photo_viewing == 1:
-                        image_function = lambda detail: get_profile_image_azure_optimized(detail.get("ProfileId"), my_gender, 1, detail.get("Photo_protection"))
+                        image_function = lambda detail: get_profile_image_azure_optimized(detail.get("ProfileId"), my_gender, 1, detail.get("Photo_protection"),profile_id)
                     else:
-                        image_function = lambda detail: get_profile_image_azure_optimized(detail.get("ProfileId"), my_gender, 1,1)
+                        image_function = lambda detail: get_profile_image_azure_optimized(detail.get("ProfileId"), my_gender, 1,1,profile_id)
                     restricted_profile_details = [
                         {
                             "int_profileid": detail.get("ProfileId"),
@@ -3165,9 +3165,9 @@ class My_intrests_list(APIView):
                     photo_viewing=get_permission_limits(profile_id,'photo_viewing')
                
                     if photo_viewing == 1 and my_status != 0:
-                        image_function = lambda detail: get_profile_image_azure_optimized(detail.get("ProfileId"), my_gender, 1, detail.get("Photo_protection"))
+                        image_function = lambda detail: get_profile_image_azure_optimized(detail.get("ProfileId"), my_gender, 1, detail.get("Photo_protection"),profile_id)
                     else:
-                        image_function = lambda detail: get_profile_image_azure_optimized(detail.get("ProfileId"), my_gender, 1,1)
+                        image_function = lambda detail: get_profile_image_azure_optimized(detail.get("ProfileId"), my_gender, 1,1,profile_id)
                     interest_map = {
                         str(interest.profile_to): interest.req_datetime
                         for interest in fetch_data
@@ -3322,9 +3322,9 @@ class Get_mutual_intrests(APIView):
                     photo_viewing=get_permission_limits(profile_id,'photo_viewing')
                
                     if photo_viewing == 1 and my_status != 0:
-                        image_function = lambda detail: get_profile_image_azure_optimized(detail.get("ProfileId"), my_gender, 1, detail.get("Photo_protection"))
+                        image_function = lambda detail: get_profile_image_azure_optimized(detail.get("ProfileId"), my_gender, 1, detail.get("Photo_protection"),profile_id)
                     else:
-                        image_function = lambda detail: get_profile_image_azure_optimized(detail.get("ProfileId"), my_gender, 1,1)
+                        image_function = lambda detail: get_profile_image_azure_optimized(detail.get("ProfileId"), my_gender, 1,1,profile_id)
                     # mutual_condition = Q(status=2) & (Q(profile_from=profile_id) | Q(profile_to=profile_id))
                     # mutual_int_count = count_records_forQ(models.Express_interests, mutual_condition)
                     interest_map = {
@@ -3517,9 +3517,9 @@ class Get_profile_wishlist(APIView):
 
                
                     if photo_viewing == 1 and my_status!=0:
-                        image_function = lambda detail: get_profile_image_azure_optimized(detail.get("ProfileId"), my_gender, 1, detail.get("Photo_protection"))
+                        image_function = lambda detail: get_profile_image_azure_optimized(detail.get("ProfileId"), my_gender, 1, detail.get("Photo_protection"),profile_id)
                     else:
-                        image_function = lambda detail: get_profile_image_azure_optimized(detail.get("ProfileId"), my_gender, 1,1)
+                        image_function = lambda detail: get_profile_image_azure_optimized(detail.get("ProfileId"), my_gender, 1,1,profile_id)
                     wishlist_map = {
                         str(wishlist.profile_to): wishlist.marked_datetime
                         for wishlist in fetch_data
@@ -3684,9 +3684,9 @@ class My_profile_visit(APIView):
                     photo_viewing=get_permission_limits(profile_id,'photo_viewing')
                
                     if photo_viewing == 1 and my_status!=0:
-                        image_function = lambda detail: get_profile_image_azure_optimized(detail.get("ProfileId"), my_gender, 1, detail.get("Photo_protection"))
+                        image_function = lambda detail: get_profile_image_azure_optimized(detail.get("ProfileId"), my_gender, 1, detail.get("Photo_protection"),profile_id)
                     else:
-                        image_function = lambda detail: get_profile_image_azure_optimized(detail.get("ProfileId"), my_gender, 1,1)
+                        image_function = lambda detail: get_profile_image_azure_optimized(detail.get("ProfileId"), my_gender, 1,1,profile_id)
                     visitor_map = {
                         str(visitor.profile_id): visitor.datetime
                         for visitor in fetch_data
@@ -3950,11 +3950,11 @@ class My_viewed_profiles(APIView):
 
                     if photo_viewing == 1 and my_status != 0:
                         image_function = lambda detail: get_profile_image_azure_optimized(
-                            detail.get("ProfileId"), my_gender, 1, detail.get("Photo_protection")
+                            detail.get("ProfileId"), my_gender, 1, detail.get("Photo_protection"),profile_id
                         )
                     else:
                         image_function = lambda detail: get_profile_image_azure_optimized(
-                            detail.get("ProfileId"), my_gender, 1, 1
+                            detail.get("ProfileId"), my_gender, 1, 1,profile_id
                         )
 
                     restricted_profile_details = [
@@ -4158,9 +4158,9 @@ class Get_personal_notes(APIView):
                     photo_viewing=get_permission_limits(profile_id,'photo_viewing')
                
                     if photo_viewing == 1 and my_status != 0:
-                        image_function = lambda detail: get_profile_image_azure_optimized(detail.get("ProfileId"), my_gender, 1, detail.get("Photo_protection"))
+                        image_function = lambda detail: get_profile_image_azure_optimized(detail.get("ProfileId"), my_gender, 1, detail.get("Photo_protection"),profile_id)
                     else:
-                        image_function = lambda detail: get_profile_image_azure_optimized(detail.get("ProfileId"), my_gender, 1,1)
+                        image_function = lambda detail: get_profile_image_azure_optimized(detail.get("ProfileId"), my_gender, 1,1,profile_id)
 
                     restricted_profile_details = [
                         {
@@ -4457,7 +4457,7 @@ def get_permission_limits(profile_id, column_name):
 blob_service_client = BlobServiceClient.from_connection_string(settings.AZURE_CONNECTION_STRING)
 container_client = blob_service_client.get_container_client(settings.AZURE_CONTAINER)
 
-def get_profile_image_azure_optimized(user_profile_id, gender, no_of_image, photo_protection):
+def get_profile_image_azure_optimized(user_profile_id, gender, no_of_image, photo_protection,from_profile=None):
     """
     Optimized image retrieval with:
     - Dual caching (Redis + local fallback)
@@ -4478,6 +4478,16 @@ def get_profile_image_azure_optimized(user_profile_id, gender, no_of_image, phot
     blurred_cache_key = f"img_blurred:{user_profile_id}:{no_of_image}"
     
     try:
+        try:
+            if from_profile:
+                is_visible = check_visibility(from_profile, user_profile_id)
+
+                if not is_visible:
+                    photo_protection = 1
+        except Exception as e:
+            pass
+        
+        
         redis_cache = caches['images']
         
         # ===== 1. PHOTO PROTECTION HANDLING =====
@@ -4974,10 +4984,10 @@ class Get_prof_list_match(APIView):
             if photo_viewing == 1 and my_pstatus !=0:
                 print("photo viewing is allowed",profile_id)
                 # print("Execution time before image starts ",datetime.now())
-                image_function = lambda detail: get_profile_image_azure_optimized(detail.get("ProfileId"), my_gender, 1, detail.get("Photo_protection"))
+                image_function = lambda detail: get_profile_image_azure_optimized(detail.get("ProfileId"), my_gender, 1, detail.get("Photo_protection"),profile_id)
             else:
                 # sprint("Execution time before blur image starts ",datetime.now())
-                image_function = lambda detail: get_profile_image_azure_optimized(detail.get("ProfileId"), my_gender, 1,1)
+                image_function = lambda detail: get_profile_image_azure_optimized(detail.get("ProfileId"), my_gender, 1,1,profile_id)
 
 
             
@@ -5528,34 +5538,43 @@ def check_visibility(from_profile, to_profile):
                 from_family = models.Familydetails.objects.get(profile_id=from_profile)
                 from_horo = models.Horoscope.objects.get(profile_id=from_profile)
                 if pv.visibility_age_from and from_age < int(pv.visibility_age_from):
-
+                    print("1")
                     return False
                 if pv.visibility_age_to and from_age > int(pv.visibility_age_to):
+                    print("2")
                     return False
                 
                 if pv.visibility_height_from and from_reg.Profile_height < pv.visibility_height_from:
+                    print("3")
                     return False
                 if pv.visibility_height_to and from_reg.Profile_height > pv.visibility_height_to:
+                    print("4")
                     return False
                 
                 if pv.visibility_profession:
                     if str(from_edu.profession) not in str(pv.visibility_profession).split(','):
+                        print("5")
                         return False
                 
                 if pv.visibility_education:
                     if str(from_edu.highest_education) not in str(pv.visibility_education).split(','):
+                        print("6")
                         return False
 
                 if pv.visibility_anual_income:
                     if safe_int(from_edu.anual_income) < safe_int(pv.visibility_anual_income):
+                        print("7")
+                        
                         return False
 
                 if pv.visibility_anual_income_max:
                     if safe_int(from_edu.anual_income) > safe_int(pv.visibility_anual_income_max):
+                        print("8")
                         return False
 
                 if pv.degree:
                     if str(from_edu.degree) not in str(pv.degree).split(','):
+                        print("9")
                         return False
                 
                 if pv.visibility_field_of_study:
@@ -6611,9 +6630,9 @@ class Get_photo_request_list(APIView):
                     photo_viewing=get_permission_limits(profile_id,'photo_viewing')
                
                     if photo_viewing == 1 and my_status !=0:
-                        image_function = lambda detail: get_profile_image_azure_optimized(detail.get("ProfileId"), my_gender, 1, detail.get("Photo_protection"))
+                        image_function = lambda detail: get_profile_image_azure_optimized(detail.get("ProfileId"), my_gender, 1, detail.get("Photo_protection"),profile_id)
                     else:
-                        image_function = lambda detail: get_profile_image_azure_optimized(detail.get("ProfileId"), my_gender, 1,1)
+                        image_function = lambda detail: get_profile_image_azure_optimized(detail.get("ProfileId"), my_gender, 1,1,profile_id)
                     
                     restricted_profile_details = [
                         {
@@ -8491,7 +8510,11 @@ class Save_plan_package(APIView):
         gpay_online = request.data.get('gpay_online')
         description = request.data.get('description')
         payment_datetime = timezone.now() 
-        
+        try:
+            is_plan_purchase = bool(plan_id)
+            
+        except Exception as e:
+            is_plan_purchase = False
         plan_name = None
         try:
             plan_obj = models.PlanDetails.objects.get(id=plan_id)
@@ -8505,7 +8528,6 @@ class Save_plan_package(APIView):
             
             user, created = User.objects.get_or_create(username=profile_id)
             if created:
-                # Handle user creation logic if needed
                 pass
               
             # Authentication successful, create token
@@ -8666,8 +8688,9 @@ class Save_plan_package(APIView):
                 
                 membership_fromdate = payment_datetime.date() #same date of the payment date
                 membership_todate = membership_fromdate + timedelta(days=365)
-                registration.membership_startdate = membership_fromdate
-                registration.membership_enddate = membership_todate
+                if is_plan_purchase:
+                    registration.membership_startdate = membership_fromdate
+                    registration.membership_enddate = membership_todate
                 registration.save() 
 
                 user, created = User.objects.get_or_create(username=profile_id)
@@ -8716,24 +8739,37 @@ class Save_plan_package(APIView):
                 payment_by='user_self',                             # e.g., 1 for success, or your own logic
                 payment_date=payment_datetime,          # current timestamp
                 order_id=order_id  )
+                
+                models.PaymentTransaction.objects.create(
+                    profile_id=profile_id,  # Assuming you have user authentication
+                    order_id="",
+                    amount=total_amount,  # Save in INR
+                    plan_id=plan_id,
+                    addon_package=addon_package_id,
+                    payment_type='Razor pay',
+                    description=description,
+                    status=1,
+                    created_at=payment_datetime
+                )
 
-                plan_features = models.PlanFeatureLimit.objects.filter(plan_id=plan_id).values().first()
+                if is_plan_purchase:
+                    plan_features = models.PlanFeatureLimit.objects.filter(plan_id=plan_id).values().first()
 
-                if plan_features:
-                    # Remove the 'id' field if present
-                    plan_features.pop('id', None)
-                    plan_features.pop('plan_id', None)  # optional, if you don't want to override plan_id
+                    if plan_features:
+                        # Remove the 'id' field if present
+                        plan_features.pop('id', None)
+                        plan_features.pop('plan_id', None)  # optional, if you don't want to override plan_id
 
-                    # Add membership dates
-                    plan_features.update({
-                        'plan_id': plan_id,
-                        'membership_fromdate': membership_fromdate,
-                        'membership_todate': membership_todate,
-                        'status':1
-                    })
+                        # Add membership dates
+                        plan_features.update({
+                            'plan_id': plan_id,
+                            'membership_fromdate': membership_fromdate,
+                            'membership_todate': membership_todate,
+                            'status':1
+                        })
 
-                    # Update the profile_plan_features row for profile_id
-                    models.Profile_PlanFeatureLimit.objects.filter(profile_id=profile_id).update(**plan_features)
+                        # Update the profile_plan_features row for profile_id
+                        models.Profile_PlanFeatureLimit.objects.filter(profile_id=profile_id).update(**plan_features)
         
                 gender = logindetails.Gender
                 height = logindetails.Profile_height
@@ -8794,7 +8830,7 @@ class Save_plan_package(APIView):
                         owner_id=None,                 
                         profile_status=logindetails.Plan_id,
                         plan_id=plan_id,
-                        others=f"Razor pay - {plan_name}" if plan_name else "Razor pay",
+                        others=f"Razor pay - premium" if plan_name else "Razor pay",
                         date_time=payment_datetime
                     )
                 except Exception as e:
@@ -13075,9 +13111,9 @@ class My_vysassist_list(APIView):
                     photo_viewing=get_permission_limits(profile_id,'photo_viewing')
                
                     if photo_viewing == 1 and my_status != 0:
-                        image_function = lambda detail: get_profile_image_azure_optimized(detail.get("ProfileId"), my_gender, 1, detail.get("Photo_protection"))
+                        image_function = lambda detail: get_profile_image_azure_optimized(detail.get("ProfileId"), my_gender, 1, detail.get("Photo_protection"),profile_id)
                     else:
-                        image_function = lambda detail: get_profile_image_azure_optimized(detail.get("ProfileId"), my_gender, 1,1)
+                        image_function = lambda detail: get_profile_image_azure_optimized(detail.get("ProfileId"), my_gender, 1,1,profile_id)
 
                     # vysassist_cond = {'status': 1,'profile_from':profile_id}
                     # vysassist_count = count_records(models.Profile_vysassist, vysassist_cond)
@@ -22908,6 +22944,16 @@ class Free_packages(APIView):
             elif not partner_details_exists:
                 profile_completion=5            #Partner details not exists            
  
+ 
+            models.DataHistory.objects.create(
+                profile_id=profile_id,
+                owner_id=None,
+                profile_status=logindetails.Status,
+                plan_id=plan_id,
+                others=f"Free package",
+                date_time=datetime.now()
+            )
+
             # Success response
             return JsonResponse({
                     "status": "success",
