@@ -11409,9 +11409,10 @@ class DataHistoryListView(generics.GenericAPIView):
             profile_id = request.query_params.get('profile_id')
             
             sql = f"""
-                SELECT dh.profile_id,dh.date_time,mp.status_name,dh.others,pm.plan_name
+                SELECT dh.profile_id,dh.date_time,mp.status_name,dh.others,pm.plan_name,u.username
                 FROM datahistory dh LEFT JOIN masterprofilestatus mp ON mp.status_code = dh.profile_status
                 LEFT JOIN plan_master pm ON pm.id = dh.plan_id
+                LEFT JOIN users u ON u.id = dh.owner_id
                 WHERE dh.profile_id = %s
             """
             params= (profile_id)
@@ -12539,6 +12540,7 @@ class EditProfileWithPermissionAPIView(APIView):
                     if latest_log:
                         update_data = {
                             others_field: other,
+                            'owner_id': owner_id
                         }
 
                         DataHistory.objects.filter(id=latest_log.id).update(**update_data)
