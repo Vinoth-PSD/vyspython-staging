@@ -138,6 +138,8 @@ class Registration1(models.Model):
     secondary_status = models.IntegerField() 
     plan_status = models.IntegerField() 
     allow_visit = models.IntegerField(default=0)
+    membership_startdate = models.DateTimeField(max_length=15,blank=True, null=True)
+    membership_enddate = models.DateTimeField(max_length=15,blank=True, null=True) 
     #Profile_idproof= models.TextField()
     
 
@@ -2611,3 +2613,22 @@ class ProfileSuggestedPref(models.Model):
     # pref_marital_status = models.CharField(max_length=100)
     class Meta:
         db_table = 'profile_suggested_pref'
+        
+        
+class DataHistory(models.Model):
+    id = models.AutoField(primary_key=True)
+    profile_id = models.CharField(max_length=255)
+    owner_id = models.IntegerField(blank=True, null=True)
+    date_time = models.DateTimeField(default=timezone.now)
+    profile_status = models.IntegerField(default=0)
+    plan_id = models.IntegerField(blank=True, null=True)
+    others =  models.CharField(max_length=255,blank=True, null=True)
+    pending_others = models.CharField(max_length=255,blank=True, null=True)
+    hide_others = models.CharField(max_length=255,blank=True, null=True)
+    delete_others = models.CharField(max_length=255,blank=True, null=True)
+    
+    class Meta:
+        managed = False  
+        db_table = 'datahistory'
+  
+  
