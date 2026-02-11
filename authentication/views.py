@@ -20838,7 +20838,7 @@ def New_horoscope_color(request, user_profile_id, my_profile_id , filename="Horo
                                     </tr>
                                     <tr>
                                         <td>{amsa_kattam_data[9].replace('/', '<br>')}</td>
-                                        <td>{amsaheight: 300px;_kattam_data[8].replace('/', '<br>')}</td>
+                                        <td>{amsa_kattam_data[8].replace('/', '<br>')}</td>
                                         <td>{amsa_kattam_data[7].replace('/', '<br>')}</td>
                                         <td>{amsa_kattam_data[6].replace('/', '<br>')}</td>
                                     </tr>
