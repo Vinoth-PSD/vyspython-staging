@@ -5669,8 +5669,19 @@ class Get_profile_det_match(APIView):
         # 2. Check View Limits
         if not (can_get_viewd_profile_count(profile_id, user_profile_id) or 
             (page_id and int(page_id) != 1)):
+            try:
+                plan_id = str(from_profile.Plan_id) 
+
+                if plan_id in {'6', '7', '8', '9'}:
+                    message = "You have reached your profile viewing limit."
+                else:
+                    message = (
+                        "Today’s view limit has been reached.Please log in tomorrow to view more new profiles.You can still revisit profiles you’ve already viewed."
+                    )
+            except Exception:
+                message = "Limit has been reached."
             return JsonResponse(
-                {'status': 'failure', 'message': 'Limit Reached to view the profile'}, 
+                {'status': 'failure', 'message': message}, 
                 status=status.HTTP_201_CREATED
             )
 
@@ -8470,6 +8481,7 @@ def GetMarsRahuKethuDoshamDetails(raw_input):
         return mars_dosham, rahu_kethu_dosham
 
 
+
 class Save_plan_package(APIView):
     def post(self, request):
         profile_id = request.data.get('profile_id')
@@ -8479,13 +8491,25 @@ class Save_plan_package(APIView):
         order_id = request.data.get('order_id')
         gpay_online = request.data.get('gpay_online')
         description = request.data.get('description')
+        payment_datetime = timezone.now() 
+        try:
+            is_plan_purchase = bool(plan_id)
+            
+        except Exception as e:
+            is_plan_purchase = False
+        plan_name = None
+        try:
+            plan_obj = models.PlanDetails.objects.get(id=plan_id)
+            plan_name = plan_obj.plan_name
+        except models.PlanDetails.DoesNotExist:
+            plan_name = None
+
         
         if str(gpay_online) == "1":
 
             
             user, created = User.objects.get_or_create(username=profile_id)
             if created:
-                # Handle user creation logic if needed
                 pass
               
             # Authentication successful, create token
@@ -8499,7 +8523,7 @@ class Save_plan_package(APIView):
                 payment_type='Gpay',
                 description=description,
                 status=1,
-                created_at=timezone.now()
+                created_at=payment_datetime
             )
 
 
@@ -8586,7 +8610,19 @@ class Save_plan_package(APIView):
 
             elif not partner_details_exists:
                 profile_completion=5            #Partner details not exists             
+            try:
+                models.DataHistory.objects.create(
+                    profile_id=profile_id,
+                    owner_id=None,  # online activation
+                    profile_status=logindetails.Status,
+                    plan_id=plan_id,
+                    others=f"GPay Online - {plan_name}" if plan_name else "GPay Online",
+                    date_time=payment_datetime
+                )
+            except Exception as e:
+                pass
 
+            
             # Success response
             return JsonResponse({
                     "status": "success",
@@ -8631,6 +8667,12 @@ class Save_plan_package(APIView):
                         models.Profile_PlanFeatureLimit.objects.filter(profile_id=profile_id).update(vys_assist=1,vys_assist_count=10)
 
                 # Save the changes
+                
+                membership_fromdate = payment_datetime.date() #same date of the payment date
+                membership_todate = membership_fromdate + timedelta(days=365)
+                if is_plan_purchase:
+                    registration.membership_startdate = membership_fromdate
+                    registration.membership_enddate = membership_todate
                 registration.save() 
 
                 user, created = User.objects.get_or_create(username=profile_id)
@@ -8669,8 +8711,6 @@ class Save_plan_package(APIView):
                     plan_limits_json = serializer.data
 
 
-                membership_fromdate = date.today() #same date of the payment date
-                membership_todate = membership_fromdate + timedelta(days=365)
 
                 models.PlanSubscription.objects.create(
                 profile_id=profile_id,              # e.g., '123'
@@ -8679,26 +8719,39 @@ class Save_plan_package(APIView):
                 payment_mode='Razor pay',     # e.g., 'UPI'
                 status=1,   
                 payment_by='user_self',                             # e.g., 1 for success, or your own logic
-                payment_date=datetime.now(),          # current timestamp
+                payment_date=payment_datetime,          # current timestamp
                 order_id=order_id  )
+                
+                models.PaymentTransaction.objects.create(
+                    profile_id=profile_id,  # Assuming you have user authentication
+                    order_id="",
+                    amount=total_amount,  # Save in INR
+                    plan_id=plan_id,
+                    addon_package=addon_package_id,
+                    payment_type='Razor pay',
+                    description=description,
+                    status=1,
+                    created_at=payment_datetime
+                )
 
-                plan_features = models.PlanFeatureLimit.objects.filter(plan_id=plan_id).values().first()
+                if is_plan_purchase:
+                    plan_features = models.PlanFeatureLimit.objects.filter(plan_id=plan_id).values().first()
 
-                if plan_features:
-                    # Remove the 'id' field if present
-                    plan_features.pop('id', None)
-                    plan_features.pop('plan_id', None)  # optional, if you don't want to override plan_id
+                    if plan_features:
+                        # Remove the 'id' field if present
+                        plan_features.pop('id', None)
+                        plan_features.pop('plan_id', None)  # optional, if you don't want to override plan_id
 
-                    # Add membership dates
-                    plan_features.update({
-                        'plan_id': plan_id,
-                        'membership_fromdate': membership_fromdate,
-                        'membership_todate': membership_todate,
-                        'status':1
-                    })
+                        # Add membership dates
+                        plan_features.update({
+                            'plan_id': plan_id,
+                            'membership_fromdate': membership_fromdate,
+                            'membership_todate': membership_todate,
+                            'status':1
+                        })
 
-                    # Update the profile_plan_features row for profile_id
-                    models.Profile_PlanFeatureLimit.objects.filter(profile_id=profile_id).update(**plan_features)
+                        # Update the profile_plan_features row for profile_id
+                        models.Profile_PlanFeatureLimit.objects.filter(profile_id=profile_id).update(**plan_features)
         
                 gender = logindetails.Gender
                 height = logindetails.Profile_height
@@ -8753,7 +8806,18 @@ class Save_plan_package(APIView):
                 elif not partner_details_exists:
                     profile_completion=5            #Partner details not exists             
 
-                
+                try:
+                    models.DataHistory.objects.create(
+                        profile_id=profile_id,
+                        owner_id=None,                 
+                        profile_status=logindetails.Plan_id,
+                        plan_id=plan_id,
+                        others=f"Razor pay - premium" if plan_name else "Razor pay",
+                        date_time=payment_datetime
+                    )
+                except Exception as e:
+                    pass
+
                 # Success response
                 return JsonResponse({
                         "status": "success",
@@ -22846,6 +22910,16 @@ class Free_packages(APIView):
             elif not partner_details_exists:
                 profile_completion=5            #Partner details not exists            
  
+ 
+            models.DataHistory.objects.create(
+                profile_id=profile_id,
+                owner_id=None,
+                profile_status=logindetails.Status,
+                plan_id=plan_id,
+                others=f"Free package",
+                date_time=datetime.now()
+            )
+
             # Success response
             return JsonResponse({
                     "status": "success",
