@@ -5715,6 +5715,7 @@ class Get_profile_det_match(APIView):
         # 5. Prepare Response Data (Maintaining Original Structure)
         response_data = {
             "encrypted_profile_id":signing.dumps(user_profile_id),
+            "My_profile_id":signing.dumps(profile_id),
             "basic_details": self._prepare_basic_details_full(my_profile, user_profile, permissions),
             "photo_protection": user_profile['Photo_protection'],
             "photo_request": self._get_photo_request_status(user_profile),
