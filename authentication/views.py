@@ -14790,12 +14790,13 @@ def get_work_address(city, district, state, country):
         return "-".join(parts) if parts else "N/A"
     except Exception:
         return " "
-    
+
 def My_horoscope_generate(request, user_profile_id, filename="Horoscope_withbirthchart.pdf"):
 
-                # print('1234567')
-  
-                # Retrieve the Horoscope object based on the provided profile_id
+                try:
+                    user_profile_id = signing.loads(user_profile_id)
+                except signing.BadSignature:
+                    return HttpResponse("Invalid profile ID", status=400) 
                 horoscope = get_object_or_404(models.Horoscope, profile_id=user_profile_id)
                 login_details = get_object_or_404(models.Registration1, ProfileId=user_profile_id)
                 education_details = get_object_or_404(models.Edudetails, profile_id=user_profile_id)
@@ -16070,9 +16071,10 @@ def parse_data(data):
 
 def My_horoscope(request, user_profile_id, filename="Horoscope_withbirthchart.pdf"):
 
-                #print('1234567')
-  
-                # Retrieve the Horoscope object based on the provided profile_id
+                try:
+                    user_profile_id = signing.loads(user_profile_id)
+                except signing.BadSignature:
+                    return HttpResponse("Invalid profile ID", status=400) 
                 horoscope = get_object_or_404(models.Horoscope, profile_id=user_profile_id)
                 login_details = get_object_or_404(models.Registration1, ProfileId=user_profile_id)
                 education_details = get_object_or_404(models.Edudetails, profile_id=user_profile_id)
@@ -16508,7 +16510,7 @@ def My_horoscope(request, user_profile_id, filename="Horoscope_withbirthchart.pd
 
                             .header-left img {{
                                 width: 100%;
-                                height: 300px;
+                                height: auto;
                             }}
                             .logo-text{{
                                 font-size: 18px;
@@ -17785,13 +17787,15 @@ def generate_porutham_pdf_mobile(request, profile_from, profile_to):
         return JsonResponse({'status': 'error', 'message': 'Only GET method is allowed'}, status=405)
 
     try:
-        # if request.content_type == 'application/json':
-        #     data = json.loads(request.body)
-        #     profile_from = data.get('profile_from')
-        #     profile_to = data.get('profile_to')
-        # else:
-        #     profile_from = request.GET.get('profile_from')
-        #     profile_to = request.GET.get('profile_to')
+        try:
+            profile_from = signing.loads(profile_from)
+        except signing.BadSignature:
+            return HttpResponse("Invalid profile ID", status=400) 
+        
+        try:
+            profile_to = signing.loads(profile_to)
+        except signing.BadSignature:
+            return HttpResponse("Invalid profile ID", status=400) 
 
         if not profile_from or not profile_to:
             return JsonResponse({'status': 'error', 'message': 'profile_from and profile_to are required'}, status=400)
@@ -18437,8 +18441,15 @@ def generate_porutham_pdf_mobile(request, profile_from, profile_to):
             save_logs.datetime = timezone.now()
             save_logs.save()
 
-        # Render and return PDF
-        return render_to_pdf(html_content)
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = f'inline; filename="Porutham.pdf"'
+
+        pisa_status = pisa.CreatePDF(html_content, dest=response)
+        if pisa_status.err:
+            logger.error(f"PDF generation error: {pisa_status.err}")
+            return HttpResponse('We had some errors <pre>' + html_content + '</pre>')
+
+        return response
 
     except json.JSONDecodeError:
         return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
@@ -20256,9 +20267,15 @@ def parse_data(data):
 
 def New_horoscope_color(request, user_profile_id, my_profile_id , filename="Horoscope_withbirthchart.pdf"):
 
-                # print('1234567')
+                try:
+                    user_profile_id = signing.loads(user_profile_id)
+                except signing.BadSignature:
+                    return HttpResponse("Invalid profile ID", status=400) 
                 
-                # Retrieve the Horoscope object based on the provided profile_id
+                try:
+                    my_profile_id = signing.loads(my_profile_id)
+                except signing.BadSignature:
+                    return HttpResponse("Invalid profile ID", status=400) 
 
                 attached_horoscope_enable=get_permission_limits(my_profile_id,'attached_horoscope')
                 contact_enable=get_permission_limits(my_profile_id,'contact_details')
@@ -20880,7 +20897,7 @@ def New_horoscope_color(request, user_profile_id, my_profile_id , filename="Horo
                                     </tr>
                                     <tr>
                                         <td>{amsa_kattam_data[11].replace('/', '<br>')}</td>
-                                        <td colspan="2" rowspan="2" class="highlight">Amsam
+                                        <td colspheight: 300px;an="2" rowspan="2" class="highlight">Amsam
                                             <p>vysyamala.com</p>
                                         </td>
                                         <td>{amsa_kattam_data[4].replace('/', '<br>')}</td>
@@ -21527,10 +21544,15 @@ def New_horoscope_color(request, user_profile_id, my_profile_id , filename="Horo
                 return response
 
 def New_horoscope_black(request, user_profile_id, my_profile_id ,  filename="Horoscope_withbirthchart.pdf"):
-
-                #print('1234567')
-  
-                # Retrieve the Horoscope object based on the provided profile_id
+                try:
+                    user_profile_id = signing.loads(user_profile_id)
+                except signing.BadSignature:
+                    return HttpResponse("Invalid profile ID", status=400) 
+                
+                try:
+                    my_profile_id = signing.loads(my_profile_id)
+                except signing.BadSignature:
+                    return HttpResponse("Invalid profile ID", status=400) 
                 horoscope = get_object_or_404(models.Horoscope, profile_id=user_profile_id)
                 login_details = get_object_or_404(models.Registration1, ProfileId=user_profile_id)
                 education_details = get_object_or_404(models.Edudetails, profile_id=user_profile_id)
@@ -22231,7 +22253,7 @@ def New_horoscope_black(request, user_profile_id, my_profile_id ,  filename="Hor
 
                             .header-left img {{
                                 width: 100%;
-                                height: 300px;
+                                height: auto;
                             }}
                             .logo-text{{
                                 font-size: 18px;
