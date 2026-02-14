@@ -337,7 +337,7 @@ class Get_resend_otp(APIView):
                     "Available Credit": available_credit
                 }
             
-            models.Basic_Registration.objects.filter(ProfileId=ProfileId).update(Otp=Otp)
+            models.Registration1.objects.filter(ProfileId=ProfileId).update(Otp=Otp)
             return JsonResponse({"Status":1,"response_data":response_data,"profile_id":ProfileId,"message": "Otp resent sucessfully"}, status=status.HTTP_201_CREATED)
         else:
             return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -351,15 +351,8 @@ class Get_resend_otp(APIView):
 
 
 class Registrationstep1(APIView):
-
     def post(self, request, *args, **kwargs):
-       
         serializer = serializers.Registration1Serializer(data=request.data)
-
-        # data1 = json.loads(request.body)
-        # mobile_no = data1.get('mobile_no')
-
-        #print('Serializer ',serializer)
         mobile_country =request.data.get('mobile_country')
         if serializer.is_valid():
             serializer.save()
@@ -368,19 +361,10 @@ class Registrationstep1(APIView):
             ProfileId= serializer.validated_data.get('ProfileId')
             Gender= serializer.validated_data.get('Gender')
             EmailId= serializer.validated_data.get('EmailId')
-            #mobile_country=serializer.validated_data.get('mobile_country')
-            
-            Profile_Owner = models.Profileholder.objects.get(Mode=Profile_for)
-
             otp = serializer.validated_data.get('Otp')
-            #otp =123456
             numbers = serializer.validated_data.get('Mobile_no')
 
-                # Create an instance of SendSMS and send OTP
-
-            #comented on 30th jully to hardcode value to set
-
-            print('mobile_country',mobile_country)
+            Profile_Owner = models.Profileholder.objects.get(Mode=Profile_for)
 
             if((mobile_country=='91')):
 
@@ -404,7 +388,6 @@ class Registrationstep1(APIView):
                 html_content = render_to_string('user_api/authentication/registration_otp.html', context)               
                 recipient_list = [EmailId]
 
-                # send_mail(subject,settings.DEFAULT_FROM_EMAIL,recipient_list,fail_silently=False,html_message=html_content)
                 from_email = settings.DEFAULT_FROM_EMAIL
                 
                 subject='Vysyamala Mobile otp verification'
@@ -414,9 +397,9 @@ class Registrationstep1(APIView):
                     }
                 send_mail(
                         subject,
-                        '',  # No plain text version
+                        '',
                         from_email,
-                        recipient_list,  # Recipient list should be a list
+                        recipient_list,
                         fail_silently=False,
                         html_message=html_content
                     )
@@ -428,9 +411,8 @@ class Registrationstep1(APIView):
             return JsonResponse({"Status":1,"profile_owner":Profile_Owner.ModeName,"response_data":response_data,'Gender':Gender,"Mobile_no":mobile_no,"profile_id":ProfileId,"message": "Registration successful","verify_type":verify_type}, status=status.HTTP_201_CREATED)
         
         else:
-            # return JsonResponse(serializer.errors, status=status.HTTP_200_OK)
             return JsonResponse({
-                "Status": 0,  # Adding status here to indicate failure
+                "Status": 0,
                 "errors": serializer.errors
             }, status=status.HTTP_200_OK)
 
@@ -455,40 +437,11 @@ class Registrationstep1(APIView):
 class Registrationstep2(APIView):
     def post(self, request, *args, **kwargs):
         serializer = serializers.Registration2Serializer(data=request.data)
-        
         if serializer.is_valid():
             profile_id = serializer.validated_data.get('ProfileId')  
-            # print('profile_id',profile_id)     
-            
             try:
-                #print('profil id',profile_id)
-                # Check if the profile exists in Registration1 table
                 
-                registration = models.Basic_Registration.objects.get(ProfileId=profile_id,Status=0)
-                
-                try:
-                    last_record = models.Registration1.objects.latest('ContentId')
-                    last_record_id = last_record.ContentId
-                except models.Registration1.DoesNotExist:
-                     last_record_id = 0 
-                
-                numeric_part = str(last_record_id + 1).zfill(3) 
-
-                # if last_record.Gender.lower()=='male':
-                if registration.Gender.strip().lower() == 'male':
-                
-                    new_profile_id = f"VM{numeric_part}" 
-                else :
-                    new_profile_id = f"VF{numeric_part}"
-                
-                # Update or create in Registration2 table
                 registration_data = {
-                    'ProfileId': new_profile_id,
-                    'Profile_for': registration.Profile_for,
-                    'Gender': registration.Gender,
-                    'Mobile_no': registration.Mobile_no,
-                    'EmailId': registration.EmailId,
-                    'Password': registration.Password,
                     'Profile_name': serializer.validated_data.get('Profile_name'),
                     'Profile_marital_status': serializer.validated_data.get('Profile_marital_status'),
                     'Profile_dob': serializer.validated_data.get('Profile_dob'),
@@ -497,7 +450,6 @@ class Registrationstep2(APIView):
                     'DateOfJoin': timezone.now(), 
                     'Otp': 0,
                     'Status': 0,
-                    'temp_profileid':profile_id,
                     'Reset_OTP_Time':None,
                     'Plan_id':7, #by default free plan
                     'primary_status':0,
@@ -519,20 +471,15 @@ class Registrationstep2(APIView):
                 #     # )
                 #     registration2_instance = registration2_serializer.save()
                 insert_rowintables={
-                    'profile_id': new_profile_id
+                    'profile_id': profile_id
                 }
 
-                # insert_planrowintables={
-                #     'profile_id': new_profile_id,
-                #     'plan_id':7
-                # }
-                registration2_instance = models.Registration1.objects.create(**registration_data)
-
+                models.Registration1.objects.filter(ProfileId=profile_id).update(**registration_data)
+                reg = models.Registration1.objects.get(ProfileId=profile_id)
                 horosocope_instance = models.Horoscope.objects.create(**insert_rowintables)
                 family_instance = models.Familydetails.objects.create(**insert_rowintables)
                 education_instance = models.Edudetails.objects.create(**insert_rowintables)
                 Partner_instance = models.Partnerpref.objects.create(**insert_rowintables)
-                # profile_planinstance=models.Profile_PlanFeatureLimit.objects.create(**insert_planrowintables)
                 profile_suggestedinstance=models.ProfileSuggestedPref.objects.create(**insert_rowintables)
                 profile_profilevisibility=models.ProfileVisibility.objects.create(**insert_rowintables)
 
@@ -572,7 +519,7 @@ class Registrationstep2(APIView):
                 profile_feature_objects = [
                     models.Profile_PlanFeatureLimit(
                         **{k: v for k, v in model_to_dict(feature).items() if k != 'id'},  # Exclude 'id'
-                        profile_id=new_profile_id,
+                        profile_id=profile_id,
                         # plan_id=7,
                         membership_fromdate=membership_fromdate,
                         membership_todate=membership_todate,
@@ -583,14 +530,12 @@ class Registrationstep2(APIView):
 
                 models.Profile_PlanFeatureLimit.objects.bulk_create(profile_feature_objects)
 
-                basic_reg = models.Basic_Registration.objects.get(ProfileId=profile_id)
-                basic_reg.status = 1  # Update status field as needed
-                basic_reg.save()
+
             
                 subject = "Welcome to Vysyamala!"
                 context = {
                     'Profile_name': registration_data['Profile_name'],
-                    'new_profile_id': new_profile_id,
+                    'new_profile_id':profile_id,
                 }
 
                 html_content = render_to_string('user_api/authentication/welcome_email_template.html', context)
@@ -598,7 +543,7 @@ class Registrationstep2(APIView):
 
 
                 
-                recipient_list = [registration_data['EmailId']]
+                recipient_list = [reg.EmailId]
 
                 # send_mail(subject,settings.DEFAULT_FROM_EMAIL,recipient_list,fail_silently=False,html_message=html_content)
                 from_email = settings.DEFAULT_FROM_EMAIL
@@ -616,14 +561,14 @@ class Registrationstep2(APIView):
                     
                     
                     #if created:
-                return JsonResponse({"Status": 1, "message": "Registration step 2 successful","profile_id":new_profile_id}, status=status.HTTP_201_CREATED)
+                return JsonResponse({"Status": 1, "message": "Registration step 2 successful","profile_id":profile_id}, status=status.HTTP_201_CREATED)
                     # else:
                     #     return JsonResponse({"Status": 1, "message": "Registration step 2 updated successfully"}, status=status.HTTP_200_OK)
                 
                 # else:
                 #     return JsonResponse(registration2_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             
-            except models.Basic_Registration.DoesNotExist:
+            except models.Registration1.DoesNotExist:
                 return JsonResponse({"Status": 0, "message": "Profile not found"}, status=status.HTTP_404_NOT_FOUND)
         
         else:
@@ -12649,7 +12594,7 @@ class FeaturedProfile(APIView):
                         )
                     )
                 ORDER BY RAND()
-                LIMIT 20
+                LIMIT 25
             ) AS rand_ld
             JOIN logindetails ld 
                 ON ld.ProfileId = rand_ld.ProfileId;

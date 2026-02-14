@@ -90,9 +90,9 @@ class Registration1(models.Model):
     PaymentType = models.CharField(max_length=255)  # Changed from CharField to TextField
 
 
-    Profile_name = models.CharField(max_length=255,null=True, blank=True) 
+    Profile_name = models.CharField(max_length=255,null=True, blank=True,default='') 
     Profile_marital_status = models.CharField(max_length=255) 
-    Profile_dob = models.CharField(max_length=255) 
+    Profile_dob = models.CharField(max_length=255, blank=True,default=None) 
     Profile_height = models.CharField(max_length=255) 
     Profile_complexion = models.CharField(max_length=255)
 
@@ -142,7 +142,7 @@ class Registration1(models.Model):
     membership_enddate = models.DateTimeField(max_length=15,blank=True, null=True) 
     #Profile_idproof= models.TextField()
     
-
+    Owner_id = models.CharField(max_length=50, blank=True, null=True)
     Status = models.IntegerField(null=True, blank=True) 
 
 
