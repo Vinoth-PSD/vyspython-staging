@@ -549,14 +549,14 @@ class Registrationstep2(APIView):
                 from_email = settings.DEFAULT_FROM_EMAIL
 
                 #Due to yuva network ssl issue commented this email sending part 03-11-2025
-                # send_mail(
-                #         subject,
-                #         '',  # No plain text version
-                #         from_email,
-                #         recipient_list,  # Recipient list should be a list
-                #         fail_silently=False,
-                #         html_message=html_content
-                #     )
+                send_mail(
+                        subject,
+                        '',  # No plain text version
+                        from_email,
+                        recipient_list,  # Recipient list should be a list
+                        fail_silently=False,
+                        html_message=html_content
+                    )
 
                     
                     
@@ -2250,7 +2250,28 @@ class Send_profile_intrests(APIView):
 
                     from_profile=models.Registration1.objects.get(ProfileId=profile_from)
                     from_profile_name=from_profile.Profile_name
-                    
+                    try:
+                        age=calculate_age(from_profile.Profile_dob)
+                    except Exception:
+                        age=None
+
+                    try:
+                        star=models.Horoscope.objects.get(profile_id=profile_from)
+                        if star:
+                            star_name = models.Birthstar.objects.get(id=star.birthstar_name)
+                        star_name=None
+                    except Exception:
+                        star=None
+                        star_name=None
+                        
+                    try:
+                        edu=models.Edudetails.objects.get(profile_id=profile_from)
+                        if edu:
+                           degree = models.Profileedu_degree.objects.get(id=edu.degree)
+                        degree=None
+                    except Exception:
+                        degree=None
+
                     to_profile=models.Registration1.objects.get(ProfileId=profile_to)
                     to_profile_name=to_profile.Profile_name
                     
@@ -2280,7 +2301,7 @@ class Send_profile_intrests(APIView):
                         # print('send_sms',send_sms)
 
                         if send_email:
-                            send_email_notification(profile_from,from_profile_name,to_profile_name,to_profile.EmailId, message_title, to_message,notification_type)
+                            send_email_notification(profile_from,from_profile_name,to_profile_name,to_profile.EmailId, message_title, to_message,notification_type,age)
 
                 return JsonResponse({"Status": 1, "message": "Express interests sent successfully"}, status=status.HTTP_200_OK)
             else:
@@ -2947,6 +2968,7 @@ class Get_Gallery_lists(APIView):
                 AND pi.image_approved=1
                 AND ld.Photo_protection != 1
                 AND ld.Plan_id != 16
+                AND ld.status != 4
                 AND ld.ProfileId IN ({placeholders})
                 ORDER BY ld.DateOfJoin DESC
             )
@@ -2967,6 +2989,7 @@ class Get_Gallery_lists(APIView):
                 AND pi.image_approved=1
                 AND ld.Photo_protection != 1
                 AND ld.Plan_id != 16
+                AND ld.status != 4
                 AND ld.ProfileId IN ({placeholders})
             ) AS subquery;
             """
@@ -3117,6 +3140,7 @@ class My_intrests_list(APIView):
                         str(interest.profile_to): interest.req_datetime
                         for interest in fetch_data
                     }
+               
                     restricted_profile_details = [
                         {
                             "myint_profileid": detail.get("ProfileId"),
@@ -3136,8 +3160,13 @@ class My_intrests_list(APIView):
                             "myint_userstatus": get_user_statusandlastvisit(detail.get("Last_login_date"))[1],
                             "myint_horoscope": "Horoscope Available" if detail.get("horoscope_file") else "Horoscope Not Available",
                             "myint_profile_wishlist":Get_wishlist(profile_id,detail.get("ProfileId")),
-                            
+                           "visited_marriage_check": (
+                                int(detail.get("pstatus") or 0) == 4 and int(detail.get("secondary_status") or 0) in [20,21]
+                            ),
+                            "visited_marriage_badge": ( "https://vysyamat.blob.core.windows.net/vysyamala/marriage_settled.jpeg" if (int(detail.get("pstatus") or 0) == 4 and int(detail.get("secondary_status") or 0) in [20,21]) else None ),
                         }
+                            
+                        
                         for detail in profile_details
                     ]
                     if sort_by == "profile_id":
@@ -3297,6 +3326,7 @@ class Get_mutual_intrests(APIView):
                                 detail.get("birth_rasi_name"),
                                 my_gender
                             ),
+                            
                             "mutint_views": count_records(models.Profile_visitors, {
                                 'status': 1,
                                 'viewed_profile': detail.get("ProfileId")
@@ -3305,7 +3335,16 @@ class Get_mutual_intrests(APIView):
                             "mutint_userstatus": get_user_statusandlastvisit(detail.get("Last_login_date"))[1],
                             "mutint_horoscope": "Horoscope Available" if detail.get("horoscope_file") else "Horoscope Not Available",
                             "mutint_profile_wishlist": Get_wishlist(profile_id, detail.get("ProfileId")),
-                        })
+
+                            "visited_marriage_check": (
+                                int(detail.get("pstatus") or 0) == 4 and int(detail.get("secondary_status") or 0) in [20,21]
+                            ),
+                            "visited_marriage_badge": ( "https://vysyamat.blob.core.windows.net/vysyamala/marriage_settled.jpeg" if (int(detail.get("pstatus") or 0) == 4 and int(detail.get("secondary_status") or 0) in [20,21]) else None ),
+                        
+
+                        }
+                        
+                        )
                     if sort_by == "profile_id":
                         restricted_profile_details.sort(
                             key=lambda x: x["mutint_profileid"],
@@ -4129,6 +4168,13 @@ class Get_personal_notes(APIView):
                             "notes_userstatus": get_user_statusandlastvisit(detail.get("Last_login_date"))[1],
                             "notes_horoscope": "Horoscope Available" if detail.get("horoscope_file") else "Horoscope Not Available",
                             "notes_profile_wishlist":Get_wishlist(profile_id,detail.get("ProfileId")),
+
+                            "visited_marriage_check": (
+                                int(detail.get("pstatus") or 0) == 4 and int(detail.get("secondary_status") or 0) in [20,21]
+                            ),
+                            "visited_marriage_badge": ( "https://vysyamat.blob.core.windows.net/vysyamala/marriage_settled.jpeg" if (int(detail.get("pstatus") or 0) == 4 and int(detail.get("secondary_status") or 0) in [20,21]) else None ),
+                        
+
                         }
                         for detail in profile_details
                     ]
@@ -6583,6 +6629,13 @@ class Get_photo_request_list(APIView):
                             "req_userstatus": get_user_statusandlastvisit(detail.get("Last_login_date"))[1],
                             "req_horoscope": "Horoscope Available" if detail.get("horoscope_file") else "Horoscope Not Available",
                             "req_profile_wishlist":Get_wishlist(profile_id,detail.get("ProfileId")),
+
+
+                            "visited_marriage_check": (
+                                int(detail.get("pstatus") or 0) == 4 and int(detail.get("secondary_status") or 0) in [20,21]
+                            ),
+                            "visited_marriage_badge": ( "https://vysyamat.blob.core.windows.net/vysyamala/marriage_settled.jpeg" if (int(detail.get("pstatus") or 0) == 4 and int(detail.get("secondary_status") or 0) in [20,21]) else None ),
+                        
                         }
                         # for detail in profile_details
                         for index, detail in enumerate(profile_details)
@@ -10299,7 +10352,7 @@ class GetSearchResults(APIView):
 
         # Initialize the query with the base structure
         base_query = """
-        SELECT distinct(a.ProfileId),a.ProfileId, a.Profile_name, a.Profile_marital_status, a.Profile_dob, a.Profile_height, a.Profile_city, 
+        SELECT distinct(a.ProfileId),a.ProfileId,a.status,a.secondary_status, a.Profile_name, a.Profile_marital_status, a.Profile_dob, a.Profile_height, a.Profile_city, 
                f.profession, f.highest_education,f.degree,f.other_degree, g.EducationLevel, d.star, h.income , e.birthstar_name , e.birth_rasi_name
                        ,a.Photo_protection,a.Gender ,a.DateOfJoin       FROM logindetails a 
         JOIN profile_partner_pref b ON a.ProfileId = b.profile_id 
@@ -11525,7 +11578,8 @@ def transform_data(original_data,my_profile_id,my_gender,source_rasi_id,source_s
     else:
                 # print("Execution time before blur image starts ",datetime.now())
                 image_function = lambda detail: get_profile_image_azure_optimized(original_data.get("ProfileId"), my_gender, 1,1)
-
+    print(original_data.get("status"))
+    print(original_data.get("secondary_status"))
     transformed_data = {
         "profile_id": original_data.get("ProfileId"),
         "profile_name": original_data.get("Profile_name"),
@@ -11542,9 +11596,16 @@ def transform_data(original_data,my_profile_id,my_gender,source_rasi_id,source_s
         "location": original_data.get("Profile_city"),
         "photo_protection": original_data.get("Photo_protection"),  # Default value
         "matching_score":Get_matching_score(source_star_id,source_rasi_id,original_data.get("birthstar_name"),original_data.get("birth_rasi_name"),my_gender),    # Default value
-        "wish_list": Get_wishlist(my_profile_id,original_data.get("ProfileId")),          # Default value
+        "wish_list": Get_wishlist(my_profile_id,original_data.get("ProfileId")),
+        
+        "visited_marriage_check": (
+                                int(original_data.get("status") or 0) == 4 and int(original_data.get("secondary_status") or 0) in [20,21]
+                            ),
+        "visited_marriage_badge": ( "https://vysyamat.blob.core.windows.net/vysyamala/marriage_settled.jpeg" if (int(original_data.get("status") or 0) == 4 and int(original_data.get("secondary_status") or 0) in [20,21]) else None ),
+                        }
+            
 
-    }
+    
     return transformed_data
 
 
@@ -12729,7 +12790,7 @@ class Search_byprofile_id(APIView):
 
         # Initialize the query with the base structure
         base_query = """
-        SELECT a.ProfileId, a.Profile_name, a.Profile_marital_status, a.Profile_dob, a.Profile_height, a.Profile_city, f.degree,f.other_degree,
+        SELECT a.ProfileId,a.status,a.secondary_status, a.Profile_name, a.Profile_marital_status, a.Profile_dob, a.Profile_height, a.Profile_city, f.degree,f.other_degree,
                f.profession, f.highest_education, g.EducationLevel, d.star, h.income , e.birthstar_name , e.birth_rasi_name
                        ,a.Photo_protection,a.Gender        FROM logindetails a  
         LEFT JOIN profile_partner_pref b ON a.ProfileId = b.profile_id 
@@ -13071,6 +13132,12 @@ class My_vysassist_list(APIView):
                             "vys_userstatus": get_user_statusandlastvisit(detail.get("Last_login_date"))[1],
                             "vys_horoscope": "Horoscope Available" if detail.get("horoscope_file") else "Horoscope Not Available",
                             "vys_profile_wishlist":Get_wishlist(profile_id,detail.get("ProfileId")),
+
+                            "visited_marriage_check": (
+                                int(detail.get("pstatus") or 0) == 4 and int(detail.get("secondary_status") or 0) in [20,21]
+                            ),
+                            "visited_marriage_badge": ( "https://vysyamat.blob.core.windows.net/vysyamala/marriage_settled.jpeg" if (int(detail.get("pstatus") or 0) == 4 and int(detail.get("secondary_status") or 0) in [20,21]) else None ),
+                        
                         }
                         for detail in profile_details
                     ]

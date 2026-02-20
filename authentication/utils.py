@@ -3,7 +3,7 @@ from django.template.loader import render_to_string  # To render HTML templates
 from django.conf import settings  # To access the default email settings
 
 
-def send_email_notification(from_profile_id,from_profile_name,to_name,to_email, message_title, to_message,notification_type):
+def send_email_notification(from_profile_id,from_profile_name,to_name,to_email, message_title, to_message,notification_type,age=None,edu_level=None):
         
         print('Express intrests from_profile_id',from_profile_id,notification_type)
         
@@ -26,6 +26,9 @@ def send_email_notification(from_profile_id,from_profile_name,to_name,to_email, 
         elif(notification_type=='express_interests'):
 
             context = {
+                'ProfileID':from_profile_id,
+                'Age': age,
+                'education':edu_level,
                 'recipient_name': to_name,
                 'profile_name': from_profile_name,
                 'from_profile_id': from_profile_id,
