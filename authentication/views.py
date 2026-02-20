@@ -96,7 +96,11 @@ from functools import lru_cache
 from django.db.models import Prefetch
 import imgkit
 from django.views.decorators.clickjacking import xframe_options_exempt
-
+from django.utils.html import strip_tags
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.conf import settings
 
 WKIMG = "/home/site/wwwroot/bin/wkhtmltoimage"
 
@@ -557,7 +561,29 @@ class Registrationstep2(APIView):
                         fail_silently=False,
                         html_message=html_content
                     )
+                # ----------- SECOND MAIL : Vysyamala At a Glance ------------
 
+                glance_subject = "Vysyamala - At a Glance"
+
+                glance_context = {
+                    'ProfileName': registration_data['Profile_name'],
+                    'DashboardLink': f"https://www.vysyamala.com/login",
+                    
+                }
+
+                glance_html_content = render_to_string(
+                    'user_api/authentication/Glance.html',
+                    glance_context
+                )
+
+                send_mail(
+                    glance_subject,
+                    strip_tags(glance_html_content),  # plain text fallback
+                    from_email,
+                    recipient_list,
+                    fail_silently=False,
+                    html_message=glance_html_content
+                )
                     
                     
                     #if created:
@@ -2247,30 +2273,46 @@ class Send_profile_intrests(APIView):
                         is_read=0,
                         created_at=timezone.now()
                     )
-
+                  
                     from_profile=models.Registration1.objects.get(ProfileId=profile_from)
                     from_profile_name=from_profile.Profile_name
                     try:
                         age=calculate_age(from_profile.Profile_dob)
                     except Exception:
                         age=None
+                    try:
+                        star = models.Horoscope.objects.get(profile_id=profile_from)
+                        if star and star.birthstar_name:
+                            try:
+                                star_obj= models.Birthstar.objects.get(id=int(star.birthstar_name))
+                                star_name = star_obj.star
+                                print(star_name)
+                            except Exception as e:
+                                star_name = None
+                        else:
+                            star_name = None
+                    except Exception as e:
+                        star = None
+                        star_name = None
+
+
 
                     try:
-                        star=models.Horoscope.objects.get(profile_id=profile_from)
-                        if star:
-                            star_name = models.Birthstar.objects.get(id=star.birthstar_name)
-                        star_name=None
-                    except Exception:
-                        star=None
-                        star_name=None
-                        
-                    try:
-                        edu=models.Edudetails.objects.get(profile_id=profile_from)
-                        if edu:
-                           degree = models.Profileedu_degree.objects.get(id=edu.degree)
-                        degree=None
-                    except Exception:
-                        degree=None
+                        edu = models.Edudetails.objects.get(profile_id=profile_from)
+                        if edu and edu.degree:
+                            try:
+                                degree_obj = models.Profileedu_degree.objects.get(id=int(edu.degree))
+                                degree = degree_obj.degeree_name
+                                print(degree)
+                            except Exception as e:
+                                degree = None
+                        else:
+                            degree = None
+                    except Exception as e:
+                        print(f"ERROR fetching Edudetails: {str(e)}")
+                        edu = None
+                        degree = None
+
 
                     to_profile=models.Registration1.objects.get(ProfileId=profile_to)
                     to_profile_name=to_profile.Profile_name
@@ -2301,14 +2343,14 @@ class Send_profile_intrests(APIView):
                         # print('send_sms',send_sms)
 
                         if send_email:
-                            send_email_notification(profile_from,from_profile_name,to_profile_name,to_profile.EmailId, message_title, to_message,notification_type,age)
+                            print("test1",degree)
+                            send_email_notification(profile_from,from_profile_name,to_profile_name,to_profile.EmailId, message_title, to_message,notification_type,age,degree,star_name)
 
                 return JsonResponse({"Status": 1, "message": "Express interests sent successfully"}, status=status.HTTP_200_OK)
             else:
                 return JsonResponse({"Status":0, "message": "Today Limit Reached , Get full access - upgrade your package today!"}, status=status.HTTP_200_OK)
             
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 class Get_expresint_status(APIView):
@@ -6532,6 +6574,44 @@ class Send_photo_request(APIView):
                         is_read=0,
                         created_at=timezone.now()
                     )
+
+                    # ------------------ SEND PHOTO REQUEST EMAIL ------------------
+
+                    from_profile_obj = models.Registration1.objects.get(ProfileId=profile_from)
+                    to_profile_obj = models.Registration1.objects.get(ProfileId=profile_to)
+
+                    subject = "📷 Someone Requested Your Photo - Vysyamala"
+
+                    context = {
+                        "ProfileName": to_profile_obj.Profile_name,
+                        "RequesterName": from_profile_obj.Profile_name,
+                        "UpdatePhotoLink": f"https://www.vysyamala.com/dashboard",
+                       
+                    }
+
+                    html_content = render_to_string(
+                        "user_api/authentication/Photo_Request.html",
+                        context
+                    )
+                    send_mail(
+                        subject,
+                        strip_tags(html_content),
+                        settings.DEFAULT_FROM_EMAIL,
+                        [to_profile_obj.EmailId],
+                        fail_silently=False,
+                        html_message=html_content
+                    )
+                  
+                    return JsonResponse(
+                        {"Status": 1, "message": "Photo interests sent successfully"},
+                        status=status.HTTP_200_OK
+                    )
+
+
+                 
+                
+
+
 
                     return JsonResponse({"Status": 1, "message": "Photo interests sent successfully"}, status=status.HTTP_200_OK)
             
@@ -23103,3 +23183,121 @@ class Amsam_Image(APIView):
         response = HttpResponse(html_content, content_type="text/html")
         response["X-Frame-Options"] = "ALLOWALL"
         return response
+
+        
+# from django.core.mail import send_mail
+# from django.template.loader import render_to_string
+# from django.utils.html import strip_tags
+# from django.conf import settings
+# from django.utils import timezone
+
+# from .models import Registration1
+
+
+
+# def send_profile_completion_reminder():
+    
+#     users = Registration1.objects.filter(Status=1)
+
+#     sent_count = 0
+
+#     for user in users:
+#         profile_id = user.ProfileId
+
+#         result = calculate_points_and_get_empty_fields(profile_id)
+#         completion_percentage = int(result['completion_percentage'])
+
+#         if completion_percentage < 80:
+
+#             subject = "Complete Your Profile & Get More Responses 💍"
+
+#             context = {
+#                 "ProfileName": user.Profile_name,
+#                 "CompletionPercentage": completion_percentage,
+#                 "ProfileEditLink": "https://www.vysyamala.com/dashboard",
+#             }
+
+#             html_content = render_to_string(
+#                 "user_api/authentication/Completion_Percentage.html",
+#                 context
+#             )
+
+#             send_mail(
+#                 subject,
+#                 strip_tags(html_content),
+#                 settings.DEFAULT_FROM_EMAIL,
+#                 [user.EmailId],
+#                 fail_silently=True,
+#                 html_message=html_content
+#             )
+
+#             sent_count += 1
+
+#     print(f"{sent_count} reminder emails sent")
+
+
+# from django.core.mail import send_mail
+# from django.template.loader import render_to_string
+# from django.utils.html import strip_tags
+# from django.conf import settings
+# from .models import Registration1
+
+
+
+# def send_profile_completion_reminder(profile_id=None):
+
+#     if profile_id:
+#         users = Registration1.objects.filter(ProfileId=profile_id, Status=1)
+#     else:
+#         users = Registration1.objects.filter(Status=1)
+
+#     sent_count = 0
+
+#     for user in users:
+#         result = calculate_points_and_get_empty_fields(user.ProfileId)
+#         completion_percentage = int(result['completion_percentage'])
+
+#         if completion_percentage < 80:
+#             subject = "Complete Your Profile & Get More Responses 💍"
+
+#             context = {
+#                 "ProfileName": user.Profile_name,
+#                 "CompletionPercentage": completion_percentage,
+#                 "ProfileEditLink": "https://www.vysyamala.com/dashboard",
+#             }
+
+#             html_content = render_to_string(
+#                 "user_api/authentication/Completion_Percentage.html",
+#                 context
+#             )
+
+#             send_mail(
+#                 subject,
+#                 strip_tags(html_content),
+#                 settings.DEFAULT_FROM_EMAIL,
+#                 [user.EmailId],
+#                 fail_silently=False,
+#                 html_message=html_content
+#             )
+
+#             sent_count += 1
+
+#     return sent_count
+
+
+
+# from rest_framework.decorators import api_view
+# from rest_framework.response import Response
+
+
+# @api_view(['GET'])
+# def trigger_profile_completion_reminder(request):
+#     profile_id = request.GET.get('profile_id')
+#     count = send_profile_completion_reminder(profile_id)
+
+#     return Response({
+#         "status": "success",
+#         "emails_sent": count,
+#         "profile_id": profile_id
+#     })
+
