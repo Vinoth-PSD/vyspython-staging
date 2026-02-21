@@ -3203,9 +3203,11 @@ class GetProfEditDetailsAPIView(APIView):
         if payment_detail:
             payment_date = payment_detail.payment_date if payment_detail.payment_date else None
             payment_mode = payment_detail.payment_mode if payment_detail.payment_mode else ''
+            payment_status ="success" if payment_detail.status == 1 else "failed"
         else:
             payment_date = None
             payment_mode = ''
+            payment_status ="success" if payment_detail.status == 1 else "failed"
 
         # print('payment_detail:', payment_detail)
         # print('payment_date:', payment_date)
@@ -3308,7 +3310,7 @@ class GetProfEditDetailsAPIView(APIView):
                 "Addon_package": login_detail.Addon_package,
                 "Notifcation_enabled":  login_detail.Notifcation_enabled,
                 "PaymentExpire": login_detail.PaymentExpire,
-                "Package_name": plan_name, #login_detail.Package_name,
+                "Package_name": plan_name,
                 "status":login_detail.status,
                 "DateOfJoin":login_detail.DateOfJoin,
                 "ProfileId":login_detail.ProfileId,
@@ -3330,17 +3332,14 @@ class GetProfEditDetailsAPIView(APIView):
                 "secondary_status":login_detail.secondary_status,
                 "plan_status":login_detail.plan_status,
                 "profile_image":Get_profile_image(profile_id,gender,1,0,is_admin=True),
-                #"valid_till":getattr(profile_plan_features, "membership_todate", None),
                 "valid_till":membership_todate.strftime("%d-%m-%Y") if (membership_todate := getattr(profile_plan_features, "membership_todate", None)) else None,
                 "created_date":login_detail.DateOfJoin,
                 "idle_days":calculate_idle_days(login_detail.Last_login_date),
                 "membership_fromdate":getattr(profile_plan_features, "membership_fromdate", None),
                 "membership_todate":getattr(profile_plan_features, "membership_todate", None),
-                # "membership_fromdate": format(profile_plan_features.membership_fromdate, '0000-0-0') if profile_plan_features.membership_fromdate else '0000-0-0',
-                # "membership_todate": format(profile_plan_features.membership_todate, '0000-0-0') if profile_plan_features.membership_todate else '0000-0-0',
                 "age":calculate_age(login_detail.Profile_dob),
-                # "payment_date":payment_date,
-                "payment_date": payment_date.strftime("%d-%m-%Y") if payment_date else None ,
+                "payment_date": payment_date if payment_date else None ,
+                "payment_status" :payment_status if payment_status else None,
                 "payment_mode":payment_mode,
                 "profile_status": get_profile_status(login_detail.status,login_detail.secondary_status,login_detail.Plan_id),
                 "add_on_pack_name":", ".join(
@@ -11608,7 +11607,7 @@ class SendInvoicePDF(APIView):
             return Response({"error": "Subscription not found"}, status=status.HTTP_404_NOT_FOUND)
 
         try:
-            profile = Registration1.objects.get(ProfileId=subscription.profile_id)
+            profile = LoginDetails.objects.get(ProfileId=subscription.profile_id)
             state = get_state_name(profile.Profile_state)
         except Exception:
             profile = None
@@ -11680,13 +11679,13 @@ class SendInvoicePDF(APIView):
             'encoded_logo': encoded_logo,
             'customer_name': customer_name if customer_name else "Valued Customer",
             'address': address,
-            'date': subscription.payment_date.strftime("%d/%m/%Y") if subscription.payment_date else "",
+            'date':  profile.membership_startdate.strftime("%d-%m-%Y") if profile and profile.membership_startdate else "",
             'invoice_number': subscription.id,
             'vysyamala_id': subscription.profile_id or "",
             'service_description':plan_name or "" ,
             'offer': subscription.offer or "",
             'price': f"{base_price:.0f}",
-            'valid_till': subscription.validity_enddate.strftime("%d-%m-%Y") if subscription.validity_enddate else "",
+            'valid_till':  profile.membership_enddate.strftime("%d-%m-%Y") if profile and profile.membership_enddate else "",
             'payment_mode': payment_mode or "N/A",
             'addon_items': addon_items,
             'addon_total': f"{addon_total:.0f}",
