@@ -421,22 +421,6 @@ class Registrationstep1(APIView):
             }, status=status.HTTP_200_OK)
 
 
-# class Registrationstep2(APIView):
-
-#     def post(self, request, *args, **kwargs):
-#         serializer = serializers.Registration2Serializer(data=request.data)
-        
-#         if serializer.is_valid():
-#             profile_id = serializer.validated_data.get('ProfileId')
-#             try:
-#                 registration = models.Registration1.objects.get(ProfileId=profile_id)
-#                 serializer.update(registration, serializer.validated_data)
-#                 return JsonResponse({"Status": 1, "message": "Registration step 2 successful"}, status=status.HTTP_200_OK)
-#             except  models.Registration1.DoesNotExist:
-#                 return JsonResponse({"Status": 0, "message": "Profile not found"}, status=status.HTTP_404_NOT_FOUND)
-#         else:
-#             return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 class Registrationstep2(APIView):
     def post(self, request, *args, **kwargs):
@@ -455,25 +439,12 @@ class Registrationstep2(APIView):
                     'Otp': 0,
                     'Status': 0,
                     'Reset_OTP_Time':None,
-                    'Plan_id':7, #by default free plan
+                    'Plan_id':7,
                     'primary_status':0,
-                    'secondary_status':26,  #free and the newly registered
+                    'secondary_status':26, 
                     'plan_status':7
-
-                    
-                    # Add other fields as needed
                 }
 
-                #print('registration_data',registration_data)
-                
-                # Use Registration2 model serializer to create or update
-                # registration2_serializer = serializers.Registration2Serializer(data=registration_data)
-                # if registration2_serializer.is_valid():
-                #     # registration2_instance, created = models.Registration1.objects.create(
-                #     #     temp_profileid=profile_id,
-                #     #     defaults=registration_data
-                #     # )
-                #     registration2_instance = registration2_serializer.save()
                 insert_rowintables={
                     'profile_id': profile_id
                 }
@@ -492,39 +463,10 @@ class Registrationstep2(APIView):
                 
                 plan_features = models.PlanFeatureLimit.objects.filter(plan_id=7)
 
-                # profile_feature_objects = [
-                #     models.Profile_PlanFeatureLimit(**{**model_to_dict(feature), 
-                #                                        'profile_id': new_profile_id,'plan_id':7,'membership_fromdate':membership_fromdate,'membership_todate':membership_todate})
-                #     for feature in plan_features
-                # ] #by default basic plan
-
-                # profile_feature_objects = [
-                #     models.PlanFeatureLimit(
-                #         **{k: v for k, v in model_to_dict(feature).items() if k != 'id'},  # Exclude 'id'
-                #         profile_id=new_profile_id,
-                #         plan_id=7,
-                #         membership_fromdate=membership_fromdate,
-                #         membership_todate=membership_todate
-                #     )
-                #     for feature in plan_features
-                # ]
-                
-                # models.Profile_PlanFeatureLimit.objects.bulk_create(profile_feature_objects)
-
-                # basic_reg = models.Basic_Registration.objects.get(ProfileId=profile_id)
-                # basic_reg.status = 1  # Update status field as needed
-                # basic_reg.save()
-
-                plan_features = models.PlanFeatureLimit.objects.filter(plan_id=7)
-
-                # print(plan_features)
-                # print('exit1234')
-
                 profile_feature_objects = [
                     models.Profile_PlanFeatureLimit(
-                        **{k: v for k, v in model_to_dict(feature).items() if k != 'id'},  # Exclude 'id'
+                        **{k: v for k, v in model_to_dict(feature).items() if k != 'id'}, 
                         profile_id=profile_id,
-                        # plan_id=7,
                         membership_fromdate=membership_fromdate,
                         membership_todate=membership_todate,
                         status=1
@@ -544,24 +486,16 @@ class Registrationstep2(APIView):
 
                 html_content = render_to_string('user_api/authentication/welcome_email_template.html', context)
 
-
-
-                
                 recipient_list = [reg.EmailId]
-
-                # send_mail(subject,settings.DEFAULT_FROM_EMAIL,recipient_list,fail_silently=False,html_message=html_content)
                 from_email = settings.DEFAULT_FROM_EMAIL
-
-                #Due to yuva network ssl issue commented this email sending part 03-11-2025
                 send_mail(
                         subject,
-                        '',  # No plain text version
+                        '',
                         from_email,
-                        recipient_list,  # Recipient list should be a list
+                        recipient_list,
                         fail_silently=False,
                         html_message=html_content
                     )
-                # ----------- SECOND MAIL : Vysyamala At a Glance ------------
 
                 glance_subject = "Vysyamala - At a Glance"
 
@@ -578,22 +512,13 @@ class Registrationstep2(APIView):
 
                 send_mail(
                     glance_subject,
-                    strip_tags(glance_html_content),  # plain text fallback
+                    strip_tags(glance_html_content),
                     from_email,
                     recipient_list,
                     fail_silently=False,
                     html_message=glance_html_content
                 )
-                    
-                    
-                    #if created:
                 return JsonResponse({"Status": 1, "message": "Registration step 2 successful","profile_id":profile_id}, status=status.HTTP_201_CREATED)
-                    # else:
-                    #     return JsonResponse({"Status": 1, "message": "Registration step 2 updated successfully"}, status=status.HTTP_200_OK)
-                
-                # else:
-                #     return JsonResponse(registration2_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-            
             except models.Registration1.DoesNotExist:
                 return JsonResponse({"Status": 0, "message": "Profile not found"}, status=status.HTTP_404_NOT_FOUND)
         
