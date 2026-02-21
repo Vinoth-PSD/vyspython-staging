@@ -463,7 +463,7 @@ class Registrationstep2(APIView):
                 membership_fromdate = date.today()
                 membership_todate = membership_fromdate + timedelta(days=365)
                 
-                feature = models.PlanFeatureLimit.objects.filter(plan_id=7)
+                feature = models.PlanFeatureLimit.objects.get(plan_id=7)
                 models.Profile_PlanFeatureLimit.objects.update_or_create(
                     profile_id=profile_id,
                     defaults={
