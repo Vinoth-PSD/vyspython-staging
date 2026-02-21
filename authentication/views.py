@@ -369,6 +369,15 @@ class Registrationstep1(APIView):
             numbers = serializer.validated_data.get('Mobile_no')
 
             Profile_Owner = models.Profileholder.objects.get(Mode=Profile_for)
+            insert_rowintables={
+                'profile_id': ProfileId
+            }
+            horosocope_instance = models.Horoscope.objects.create(**insert_rowintables)
+            family_instance = models.Familydetails.objects.create(**insert_rowintables)
+            education_instance = models.Edudetails.objects.create(**insert_rowintables)
+            Partner_instance = models.Partnerpref.objects.create(**insert_rowintables)
+            profile_suggestedinstance=models.ProfileSuggestedPref.objects.create(**insert_rowintables)
+            profile_profilevisibility=models.ProfileVisibility.objects.create(**insert_rowintables)
 
             if((mobile_country=='91')):
 
@@ -435,7 +444,7 @@ class Registrationstep2(APIView):
                     'Profile_dob': serializer.validated_data.get('Profile_dob'),
                     'Profile_height': serializer.validated_data.get('Profile_height'),
                     'Profile_complexion': serializer.validated_data.get('Profile_complexion'), 
-                    'DateOfJoin': timezone.now(), 
+                    
                     'Otp': 0,
                     'Status': 0,
                     'Reset_OTP_Time':None,
@@ -445,37 +454,27 @@ class Registrationstep2(APIView):
                     'plan_status':7
                 }
 
-                insert_rowintables={
-                    'profile_id': profile_id
-                }
+
 
                 models.Registration1.objects.filter(ProfileId=profile_id).update(**registration_data)
                 reg = models.Registration1.objects.get(ProfileId=profile_id)
-                horosocope_instance = models.Horoscope.objects.create(**insert_rowintables)
-                family_instance = models.Familydetails.objects.create(**insert_rowintables)
-                education_instance = models.Edudetails.objects.create(**insert_rowintables)
-                Partner_instance = models.Partnerpref.objects.create(**insert_rowintables)
-                profile_suggestedinstance=models.ProfileSuggestedPref.objects.create(**insert_rowintables)
-                profile_profilevisibility=models.ProfileVisibility.objects.create(**insert_rowintables)
+
 
                 membership_fromdate = date.today()
                 membership_todate = membership_fromdate + timedelta(days=365)
                 
-                plan_features = models.PlanFeatureLimit.objects.filter(plan_id=7)
-
-                for feature in plan_features:
-                    defaults = {
-                        **{k: v for k, v in model_to_dict(feature).items() if k not in ['id', 'plan_id']},
+                feature = models.PlanFeatureLimit.objects.filter(plan_id=7)
+                models.Profile_PlanFeatureLimit.objects.update_or_create(
+                    profile_id=profile_id,
+                    defaults={
+                        **{k: v for k, v in model_to_dict(feature).items()
+                        if k not in ['id', 'plan_id']},
+                        'plan_id': feature.plan_id,
                         'membership_fromdate': membership_fromdate,
                         'membership_todate': membership_todate,
                         'status': 1,
                     }
-
-                    models.Profile_PlanFeatureLimit.objects.update_or_create(
-                        profile_id=profile_id,
-                        plan_id=feature.plan_id,
-                        defaults=defaults
-                    )
+                )
 
 
 

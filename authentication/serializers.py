@@ -77,7 +77,7 @@ class Registration1Serializer(serializers.ModelSerializer):
     Profile_state=serializers.CharField(required=False, allow_blank=True)
     class Meta:
         model = models.Registration1
-        fields = ('Profile_for', 'Gender', 'Mobile_no', 'EmailId', 'Password','Profile_country','Profile_state')
+        fields = ('Profile_for', 'Gender', 'Mobile_no', 'EmailId', 'Password','Profile_country','Profile_state','DateOfJoin')
 
     def validate_EmailId(self, EmailId):
         print('EmailId',EmailId)
@@ -112,6 +112,7 @@ class Registration1Serializer(serializers.ModelSerializer):
         otp =random.randint(100000, 999999)
  
         data['Otp'] = otp
+        data['DateOfJoin']= timezone.now()
         data['Status']=0
 
         return data

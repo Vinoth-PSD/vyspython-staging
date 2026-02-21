@@ -3207,7 +3207,7 @@ class GetProfEditDetailsAPIView(APIView):
         else:
             payment_date = None
             payment_mode = ''
-            payment_status ="success" if payment_detail.status == 1 else "failed"
+            payment_status =None
 
         # print('payment_detail:', payment_detail)
         # print('payment_date:', payment_date)
