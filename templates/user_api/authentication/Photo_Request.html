@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Welcome to Vysyamala</title>
+<title>Photo Request - Vysyamala</title>
 <style>
 body{margin:0;background:#fff5f7;font-family:Arial,Helvetica,sans-serif}
 .wrapper{width:100%;padding:20px 0;background:#fff5f7}
 .main{max-width:600px;margin:auto;background:#ffffff;border-radius:14px;overflow:hidden;box-shadow:0 8px 25px rgba(0,0,0,.08)}
 .header{text-align:center;padding:20px}
 .header img{max-width:220px}
-.hero{background:linear-gradient(135deg,#e51b3f,#ff4d6d);color:#fff;text-align:center;padding:35px 20px}
-.hero h1{margin:0;font-size:26px}
+.hero{background:linear-gradient(135deg,#e51b3f,#ff4d6d);color:#fff;text-align:center;padding:30px 20px}
+.hero h1{margin:0;font-size:24px}
 .content{padding:25px;color:#444;font-size:15px;line-height:1.7}
 .box{background:#fff5f7;border:1px solid #ffd3db;padding:18px;border-radius:10px;margin:18px 0}
 .btn{display:inline-block;background:#e51b3f;color:#fff;text-decoration:none;padding:14px 22px;border-radius:8px;margin-top:14px;font-weight:bold}
@@ -20,33 +20,30 @@ body{margin:0;background:#fff5f7;font-family:Arial,Helvetica,sans-serif}
 </style>
 </head>
 <body>
-
-    
 <center class="wrapper">
 <table class="main" role="presentation">
 <tr><td class="header"><img src="https://vysyamat.blob.core.windows.net/vysyamala/newvysyamalalogo2.png" alt="Vysyamala"></td></tr>
-<tr><td class="hero"><h1>Welcome to Vysyamala Family 💐</h1><p>Your journey to find a life partner begins here</p></td></tr>
+<tr><td class="hero"><h1>📷 Photo Request</h1><p>Someone would like to view your photo</p></td></tr>
 <tr><td class="content">
-<p>Dear <b>{{Profile_name}}</b>,</p>
-<p>Thank you for registering with <b>Vysyamala</b>. We are happy to have you as part of our community.</p>
+<p>Dear <b>{{ProfileName}}</b>,</p>
+<p><b>{{RequesterName}}</b> has requested to view your photo on <b>Vysyamala</b>.</p>
 
 <div class="box">
-Our customer support executive will contact you shortly. During the call, please cooperate and briefly explain your expectations, family background, hobbies and preferences. This helps us guide you towards suitable matches quickly and effectively.
+Sharing your photo helps families understand better and improves response chances.
+You can approve or decline the request anytime.
 </div>
-
-<p>Our prayers are with you to find a good life partner and begin a happy married life soon.</p>
 
 <div class="center">
-<a href="https://www.vysyamala.com/Dashboard" class="btn">View My Profile</a>
+<a href="{{UpdatePhotoLink}}" class="btn">Update / Upload Photo</a>
 </div>
+
+<p style="margin-top:18px">With the blessings of <b>Goddess Sri Kanyaka Parameswari</b>, we wish you a happy and blessed journey towards finding your life partner 🌸</p>
 </td></tr>
 <tr><td class="footer">
 Warm Regards,<br>
 <b>Team Vysyamala</b><br><br>
-Helpline: +91 9944851550<br>
-Email: info@vysyamala.com<br><br>
-You are receiving this email because you registered on Vysyamala.<br>
-<a href="https://www.vysyamala.com/Dashboard/Settings">Unsubscribe</a>
+Helpline: +91 9944851550 · info@vysyamala.com<br>
+<a href="{{UnsubscribeLink}}">Unsubscribe</a>
 </td></tr>
 </table>
 </center>
