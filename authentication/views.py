@@ -463,18 +463,20 @@ class Registrationstep2(APIView):
                 
                 plan_features = models.PlanFeatureLimit.objects.filter(plan_id=7)
 
-                profile_feature_objects = [
-                    models.Profile_PlanFeatureLimit(
-                        **{k: v for k, v in model_to_dict(feature).items() if k != 'id'}, 
-                        profile_id=profile_id,
-                        membership_fromdate=membership_fromdate,
-                        membership_todate=membership_todate,
-                        status=1
-                    )
-                    for feature in plan_features
-                ]
+                for feature in plan_features:
+                    defaults = {
+                        **{k: v for k, v in model_to_dict(feature).items() if k not in ['id', 'plan_id']},
+                        'membership_fromdate': membership_fromdate,
+                        'membership_todate': membership_todate,
+                        'status': 1,
+                    }
 
-                models.Profile_PlanFeatureLimit.objects.bulk_create(profile_feature_objects)
+                    models.Profile_PlanFeatureLimit.objects.update_or_create(
+                        profile_id=profile_id,
+                        plan_id=feature.plan_id,
+                        defaults=defaults
+                    )
+
 
 
             
