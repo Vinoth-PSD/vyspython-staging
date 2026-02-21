@@ -8571,7 +8571,7 @@ class Save_plan_package(APIView):
 
             if profile_images:
                 profile_image = profile_images.image.url
-            #default image icon
+
             else:
             
                 profile_icon = 'men.jpg' if gender == 'male' else 'women.jpg'
@@ -8619,10 +8619,10 @@ class Save_plan_package(APIView):
             try:
                 models.DataHistory.objects.create(
                     profile_id=profile_id,
-                    owner_id=None,  # online activation
+                    owner_id=logindetails.Owner_id if logindetails.Owner_id else None,                 
                     profile_status=logindetails.Status,
                     plan_id=plan_id,
-                    others=f"GPay Online - {plan_name}" if plan_name else "GPay Online",
+                    others=f"GPay Online - success" if plan_name else "GPay Online",
                     date_time=payment_datetime
                 )
             except Exception as e:
@@ -8639,7 +8639,6 @@ class Save_plan_package(APIView):
         else :
         
             try:
-                # Check if request data is empty
                 if not profile_id or not plan_id:
                     return JsonResponse({"status": "error", "message": "profile_id and plan_id are required"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -8647,34 +8646,25 @@ class Save_plan_package(APIView):
                 if not request.data:
                     return JsonResponse({"status": "error", "message": "No data provided"}, status=status.HTTP_400_BAD_REQUEST)
 
-                # Fetch the instances by profile_id
                 registration = models.Registration1.objects.get(ProfileId=profile_id)
-                # Update the fields
+
                 
-                registration.Plan_id = plan_id if plan_id != 0 else registration.Plan_id  #if in case the plan_id come as 0 it shoult update as 0 
-                #registration.Plan_id = plan_id
-                registration.secondary_status = 30   # newly registered and the Premium
+                registration.Plan_id = plan_id if plan_id != 0 else registration.Plan_id 
+                registration.secondary_status = 5
+                registration.Status=1
                 registration.plan_status = plan_id
                 registration.Addon_package = addon_package_id
                 registration.Payment= total_amount
 
                 addon_package_ids = addon_package_id
 
-                #update vysassist in profilePlanfeatiretable
                 if addon_package_ids:
-                    # Split comma-separated string into list of ints
                     addon_package_id_list = [int(pk.strip()) for pk in addon_package_ids.split(",") if pk.strip().isdigit()]
-
-                    # Check if ID 1 is in the list
                     if 1 in addon_package_id_list:
-                        # print("Addon Package ID 1 found. Updating Profile_plan_feature...")
-
-                        # Example: update all rows (or filter if needed)
                         models.Profile_PlanFeatureLimit.objects.filter(profile_id=profile_id).update(vys_assist=1,vys_assist_count=10)
 
-                # Save the changes
                 
-                membership_fromdate = payment_datetime.date() #same date of the payment date
+                membership_fromdate = payment_datetime
                 membership_todate = membership_fromdate + timedelta(days=365)
                 if is_plan_purchase:
                     registration.membership_startdate = membership_fromdate
@@ -8683,10 +8673,8 @@ class Save_plan_package(APIView):
 
                 user, created = User.objects.get_or_create(username=profile_id)
                 if created:
-                    # Handle user creation logic if needed
                     pass
                 
-                # Authentication successful, create token
                 token, created = Token.objects.get_or_create(user=user)
 
                 notify_count=models.Profile_notification.objects.filter(profile_id=profile_id, is_read=0).count()
@@ -8705,7 +8693,6 @@ class Save_plan_package(APIView):
             
                 horodetails=models.Horoscope.objects.filter(profile_id=profile_id).first()
                 
-                #get first image for the profile icon
                 profile_images=models.Image_Upload.objects.filter(profile_id=profile_id).first()  
 
                 plan_id = logindetails.Plan_id
@@ -8719,10 +8706,10 @@ class Save_plan_package(APIView):
 
 
                 models.PlanSubscription.objects.create(
-                profile_id=profile_id,              # e.g., '123'
-                plan_id=plan_id,               # e.g., 7
-                paid_amount=total_amount,             # e.g., Decimal('499.99')
-                payment_mode='Razor pay',     # e.g., 'UPI'
+                profile_id=profile_id,             
+                plan_id=plan_id,               
+                paid_amount=total_amount,            
+                payment_mode='Razor pay',    
                 status=1,   
                 payment_by='user_self',                             # e.g., 1 for success, or your own logic
                 payment_date=payment_datetime,          # current timestamp
@@ -8744,11 +8731,9 @@ class Save_plan_package(APIView):
                     plan_features = models.PlanFeatureLimit.objects.filter(plan_id=plan_id).values().first()
 
                     if plan_features:
-                        # Remove the 'id' field if present
                         plan_features.pop('id', None)
-                        plan_features.pop('plan_id', None)  # optional, if you don't want to override plan_id
+                        plan_features.pop('plan_id', None)
 
-                        # Add membership dates
                         plan_features.update({
                             'plan_id': plan_id,
                             'membership_fromdate': membership_fromdate,
@@ -8756,7 +8741,6 @@ class Save_plan_package(APIView):
                             'status':1
                         })
 
-                        # Update the profile_plan_features row for profile_id
                         models.Profile_PlanFeatureLimit.objects.filter(profile_id=profile_id).update(**plan_features)
         
                 gender = logindetails.Gender
@@ -8776,7 +8760,7 @@ class Save_plan_package(APIView):
 
                 if profile_images:
                     profile_image = profile_images.image.url
-                #default image icon
+
                 else:
                 
                     profile_icon = 'men.jpg' if gender == 'male' else 'women.jpg'
@@ -8794,10 +8778,9 @@ class Save_plan_package(APIView):
                 profile_planfeature = models.Profile_PlanFeatureLimit.objects.filter(profile_id=profile_id, status=1).first()
                 valid_till = profile_planfeature.membership_todate if profile_planfeature else None
 
-                #check the address is exists for the contact s page contact us details stored in the logindetails page only
                 if not logindetails_exists:
                 
-                    profile_completion=1     #contact details not exists   
+                    profile_completion=1     
 
                 elif not family_details_exists:
                     
@@ -8815,10 +8798,10 @@ class Save_plan_package(APIView):
                 try:
                     models.DataHistory.objects.create(
                         profile_id=profile_id,
-                        owner_id=None,                 
-                        profile_status=logindetails.Plan_id,
+                        owner_id=logindetails.Owner_id if logindetails.Owner_id else None,                 
+                        profile_status=logindetails.Status,
                         plan_id=plan_id,
-                        others=f"Razor pay - premium" if plan_name else "Razor pay",
+                        others=f"Razor pay - success" if plan_name else "Razor pay",
                         date_time=payment_datetime
                     )
                 except Exception as e:
