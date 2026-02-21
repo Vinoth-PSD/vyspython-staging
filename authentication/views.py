@@ -8517,12 +8517,11 @@ class Save_plan_package(APIView):
             if created:
                 pass
               
-            # Authentication successful, create token
             token, created = Token.objects.get_or_create(user=user)
             models.PaymentTransaction.objects.create(
-                profile_id=profile_id,  # Assuming you have user authentication
-                order_id="",
-                amount=total_amount,  # Save in INR
+                profile_id=profile_id,  
+                order_id=order_id if order_id else '',
+                amount=total_amount,  
                 plan_id=plan_id,
                 addon_package=addon_package_id,
                 payment_type='Gpay',
@@ -8548,7 +8547,6 @@ class Save_plan_package(APIView):
         
             horodetails=models.Horoscope.objects.filter(profile_id=profile_id).first()
             
-            #get first image for the profile icon
             profile_images=models.Image_Upload.objects.filter(profile_id=profile_id).first()  
 
             
@@ -8598,23 +8596,22 @@ class Save_plan_package(APIView):
             profile_planfeature = models.Profile_PlanFeatureLimit.objects.filter(profile_id=profile_id, status=1).first()
             valid_till = profile_planfeature.membership_todate if profile_planfeature else None
 
-            #check the address is exists for the contact s page contact us details stored in the logindetails page only
             if not logindetails_exists:
             
-                profile_completion=1     #contact details not exists   
+                profile_completion=1  
 
             elif not family_details_exists:
                 
-                profile_completion=2    #Family details not exists   
+                profile_completion=2     
 
             elif not horo_details_exists:
-                profile_completion=3    #Horo details not exists   
+                profile_completion=3    
 
             elif not education_details_exists:
-                profile_completion=4        #Edu details not exists   
+                profile_completion=4     
 
             elif not partner_details_exists:
-                profile_completion=5            #Partner details not exists             
+                profile_completion=5                 
             try:
                 models.DataHistory.objects.create(
                     profile_id=profile_id,
@@ -8627,8 +8624,6 @@ class Save_plan_package(APIView):
             except Exception as e:
                 pass
 
-            
-            # Success response
             return JsonResponse({
                     "status": "success",
                     "message": "Plans and packages updated successfully",
@@ -8638,8 +8633,8 @@ class Save_plan_package(APIView):
         else :
         
             try:
-                if not profile_id or not plan_id:
-                    return JsonResponse({"status": "error", "message": "profile_id and plan_id are required"}, status=status.HTTP_400_BAD_REQUEST)
+                # if not profile_id or not plan_id:
+                #     return JsonResponse({"status": "error", "message": "profile_id and plan_id are required"}, status=status.HTTP_400_BAD_REQUEST)
 
 
                 if not request.data:
@@ -8702,21 +8697,29 @@ class Save_plan_package(APIView):
                     serializer = serializers.PlanFeatureLimitSerializer(plan_limits, many=True)
                     plan_limits_json = serializer.data
 
-
-
+                try:
+                    plan = get_object_or_404(models.PlanDetails, id=plan_id)
+                    plan_price = plan.plan_price
+                except Exception:
+                    plan_price = None
                 models.PlanSubscription.objects.create(
                 profile_id=profile_id,             
                 plan_id=plan_id,               
                 paid_amount=total_amount,            
-                payment_mode='Razor pay',    
+                payment_mode='RazorPay',    
                 status=1,   
                 payment_by='user_self',                             # e.g., 1 for success, or your own logic
                 payment_date=payment_datetime,          # current timestamp
-                order_id=order_id  )
+                order_id=order_id ,
+                validity_startdate =membership_fromdate if is_plan_purchase else None,
+                validity_enddate = membership_todate if is_plan_purchase else None,
+                package_amount=plan_price if plan_price else None,
+                addon_package =addon_package_ids
+                )
                 
                 models.PaymentTransaction.objects.create(
                     profile_id=profile_id,  # Assuming you have user authentication
-                    order_id="",
+                    order_id=order_id if order_id else '',
                     amount=total_amount,  # Save in INR
                     plan_id=plan_id,
                     addon_package=addon_package_id,
@@ -22937,7 +22940,7 @@ class Free_packages(APIView):
  
             models.DataHistory.objects.create(
                 profile_id=profile_id,
-                owner_id=None,
+                owner_id=logindetails.Owner_id if logindetails.Owner_id else None,
                 profile_status=logindetails.Status,
                 plan_id=plan_id,
                 others=f"Free package",

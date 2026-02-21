@@ -2464,7 +2464,10 @@ class PlanSubscription(models.Model):
     payment_by= models.CharField(max_length=150)
     admin_user= models.CharField(max_length=150)
     order_id= models.CharField(max_length=150)
-
+    validity_startdate = models.DateTimeField(null=True,blank=True)
+    validity_enddate = models.DateTimeField(null=True,blank=True)
+    package_amount = models.DecimalField(max_digits=10, decimal_places=2,null=True,blank=True)
+    addon_package = models.CharField(max_length=100,null=True,blank=True)
     class Meta:
         managed = False  
         db_table = 'plan_subscription'  
