@@ -3355,6 +3355,7 @@ class GetProfEditDetailsAPIView(APIView):
                 "others":get_others(login_detail.ProfileId,login_detail.status)
                 #"myself":myself
                 }
+
     
                 
         
@@ -10867,8 +10868,8 @@ class PlanSubscriptionListView(generics.ListAPIView):
     serializer_class = PlanSubscriptionListSerializer
  
     def get_queryset(self):
-        profile_id = self.request.query_params.get("profile_id")  # get ?profile_id=123 from URL
-        queryset = PlanSubscription.objects.filter(status=1)
+        profile_id = self.request.query_params.get("profile_id")
+        queryset = PlanSubscription.objects.filter(status=1).order_by('-payment_date')
  
         if profile_id:
             queryset = queryset.filter(profile_id=profile_id)
@@ -12332,7 +12333,7 @@ class EditProfileWithPermissionAPIView(APIView):
         
         if profile_common_data:
             if edit_mem ==3 or edit_mem ==1 or edit_mem ==2:
-                owner = profile_common_data.get("owner_id")
+                owner = profile_common_data.get("profile_owner_id")
                 # print('inside profile common data update',profile_common_data.get("primary_status"))
                 # Only include the common data keys that are available in the request
                 if edit_mem ==3:
@@ -12443,56 +12444,6 @@ class EditProfileWithPermissionAPIView(APIView):
             else:
                 return Response({'error': 'You do not have permission to edit this profile.'}, status=status.HTTP_403_FORBIDDEN)
 
-            
-            # try:
-            #     if owner:
-            #         owner_id =int(owner)
-            #     else:
-            #         owner_id = None
-            #     old_status = getattr(login_detail, 'status', None)
-            #     new_status = profile_common_data.get("status") or old_status
-
-            #     old_plan_id = getattr(login_detail, 'Plan_id', None)
-            #     new_plan_id = profile_common_data.get("secondary_status") or old_plan_id
-            #     others_id = profile_common_data.get("primary_status")
-            #     try:
-            #         status_sub = ProfileSubStatus.objects.get(id=others_id)
-            #         others = status_sub.sub_status_name
-            #     except:    
-            #         others = None
-                
-            #     if old_status is not None and int(old_status) != int(new_status) and int(old_plan_id) != int(new_plan_id):
-            #         try:
-            #             DataHistory.objects.create(
-            #                 profile_id=profile_id,
-            #                 profile_status=new_status,
-            #                 plan_id=new_plan_id,
-            #                 owner_id = owner_id
-            #             )
-            #         except Exception as e:
-            #             pass
-            #     elif old_status is not None and int(old_status) != int(new_status):
-            #         try:
-            #             DataHistory.objects.create(
-            #                 profile_id=profile_id,
-            #                 profile_status=new_status,
-            #                 owner_id = owner_id,
-            #                 others=others
-            #             )
-            #         except Exception as e:
-            #             pass
-                    
-            #     elif int(old_plan_id) != int(new_plan_id):
-            #         try:
-            #             DataHistory.objects.create(
-            #                 profile_id=profile_id,
-            #                 profile_status=new_status, 
-            #                 plan_id=new_plan_id,
-            #                 owner_id = owner_id
-            #             )
-            #         except Exception as e:
-            #             pass
-            
             try:
                 owner_id = int(owner) if owner else None
 
